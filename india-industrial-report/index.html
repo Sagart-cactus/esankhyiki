@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Industrial Production Report | MoSPI IIP Data 2012-2025</title>
+    <meta name="description" content="Interactive report on India's Index of Industrial Production from MoSPI — covering IIP trends, sectoral indices, use-based classification, manufacturing sub-sectors, and growth analysis.">
+    <meta property="og:title" content="India Industrial Production Report 2012-2025">
+    <meta property="og:description" content="General IIP rose from 100 to 152.6 in 13 years. Electricity doubled. Pharma index at 231. Explore India's industrial output story through interactive charts.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --accent: #f97316;
+            --accent-light: #fb923c;
+            --accent-glow: rgba(249, 115, 22, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-1: #f97316;
+            --chart-2: #60a5fa;
+            --chart-3: #34d399;
+            --chart-4: #fbbf24;
+            --chart-5: #a78bfa;
+            --chart-6: #fb923c;
+            --chart-7: #38bdf8;
+            --chart-8: #e879f9;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(8, 13, 24, 0.85); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); border-bottom: 1px solid var(--border); height: var(--nav-height); display: flex; align-items: center; transition: box-shadow 0.3s; }
+        .site-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .nav-brand { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--accent-light); white-space: nowrap; letter-spacing: -0.01em; }
+        .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; transition: color 0.2s, background 0.2s; letter-spacing: 0.01em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent-light); }
+        .nav-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--chart-2)); width: 0%; transition: width 0.15s; }
+        .hero { position: relative; padding: 100px 24px 70px; overflow: hidden; background: var(--bg-deep); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(249, 115, 22, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(96, 165, 250, 0.05) 0%, transparent 60%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.35; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .hero-text h1 { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-text h1 span { display: block; color: var(--accent-light); font-size: 0.5em; font-weight: 400; font-style: italic; margin-top: 4px; letter-spacing: 0; }
+        .hero-text p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 20px; line-height: 1.7; }
+        .hero-text .source { color: var(--muted); font-size: 0.8rem; }
+        .hero-text .source a { color: var(--accent); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+        .hero-stat { text-align: right; padding-right: 20px; }
+        .hero-stat .big-number { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; color: var(--accent); opacity: 0.18; letter-spacing: -0.04em; }
+        .hero-stat .big-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+        .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 48px 0 32px; }
+        .highlight-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 10px; padding: 22px 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s; }
+        .highlight-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+        .highlight-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--accent); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--chart-2); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, rgba(96,165,250,0.12), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--chart-4); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--chart-6); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, rgba(251,146,60,0.12), transparent 70%); }
+        .highlight-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.02em; }
+        .highlight-card .label { color: var(--text-secondary); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+        .highlight-card .sublabel { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+        .report-section { padding: 56px 0 48px; position: relative; }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+        .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+        .section-num { font-family: var(--font-display); font-size: 3rem; font-weight: 300; color: var(--accent); opacity: 0.2; line-height: 1; letter-spacing: -0.04em; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .section-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: 0.95rem; max-width: 720px; line-height: 1.7; }
+        .section-divider { width: 48px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 12px 0 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; position: relative; }
+        .chart-card h3 { font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .insight { background: rgba(249, 115, 22, 0.06); border-left: 3px solid var(--accent); padding: 14px 18px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        .insight strong { color: var(--text); font-weight: 600; }
+        .social-section { padding: 56px 0; }
+        .social-section h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; margin-bottom: 28px; }
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .social-card { background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95)); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden; backdrop-filter: blur(8px); transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s; }
+        .social-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--chart-2), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--chart-4), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--chart-6), transparent 80%); }
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+        .social-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+        .social-card .hashtag { margin-top: 14px; color: var(--accent); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.01em; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+        thead { position: sticky; top: 0; z-index: 2; }
+        th { padding: 12px 16px; text-align: right; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(249, 115, 22, 0.04); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 48px 24px; background: var(--bg-deep); border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+        .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: var(--card); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 90; text-decoration: none; }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { background: var(--card-hover); color: var(--text); }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-stagger > .highlight-card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1); }
+        .reveal-stagger.visible > .highlight-card { opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+        @media (max-width: 1024px) { .highlights { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .hero-stat { display: none; } .hero-text h1 { font-size: 2.4rem; } }
+        @media (max-width: 700px) { .hero { padding: 80px 20px 50px; } .hero-text h1 { font-size: 1.8rem; } .hero-text p { font-size: 0.95rem; } .highlights { grid-template-columns: 1fr 1fr; gap: 10px; } .highlight-card { padding: 16px 14px; } .highlight-card .number { font-size: 1.5rem; } .highlight-card .label { font-size: 0.75rem; } .section-header h2 { font-size: 1.3rem; } .section-num { font-size: 2rem; } .social-grid { grid-template-columns: 1fr; } .nav-brand { display: none; } .nav-links a { font-size: 0.65rem; padding: 4px 7px; } .chart-card { padding: 20px 16px; } }
+        @media (max-width: 480px) { .highlights { grid-template-columns: 1fr; } .nav-links { gap: 2px; } }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India IIP</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#social">Highlights</a>
+            <a href="#general-iip">General IIP</a>
+            <a href="#sectoral">Sectoral</a>
+            <a href="#use-based">Use-Based</a>
+            <a href="#capital-consumer">Capital vs Consumer</a>
+            <a href="#manufacturing">Manufacturing</a>
+            <a href="#growth">Growth</a>
+            <a href="#top-sectors">Top Sectors</a>
+            <a href="#data-table">Data Table</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India's Industrial<br>Production <span>Thirteen years of output, 2012-13 to 2024-25</span></h1>
+            <p>From a base of 100 in 2011-12 to 152.6 in 2024-25 &mdash; India's industrial output grew 53% in thirteen years, weathering a pandemic contraction of &minus;8.4% and bouncing back with an 11.4% recovery.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation</a> &middot; IIP (Base 2011-12=100) via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">152.6</div>
+            <div class="big-label">General IIP Index &middot; 2024-25</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<div class="container">
+    <div class="highlights reveal-stagger">
+        <div class="highlight-card">
+            <div class="number" style="color: var(--accent);">152.6</div>
+            <div class="label">General IIP Index</div>
+            <div class="sublabel">2024-25 &middot; Base 2011-12=100</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-2);">150.6</div>
+            <div class="label">Manufacturing Index</div>
+            <div class="sublabel">Largest sector &middot; 4.1% growth</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--crimson);">132.8</div>
+            <div class="label">Mining Index</div>
+            <div class="sublabel">3.0% growth &middot; 2024-25</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--lavender);">208.6</div>
+            <div class="label">Electricity Index</div>
+            <div class="sublabel">Doubled since base year</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-4);">112.6</div>
+            <div class="label">Capital Goods Index</div>
+            <div class="sublabel">Recovered from &minus;18.6% pandemic low</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-6);">4.0%</div>
+            <div class="label">Overall Growth Rate</div>
+            <div class="sublabel">2024-25</div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== SOCIAL CARDS ====== -->
+<section class="social-section container" id="social">
+    <h2 class="reveal">Share-worthy Facts</h2>
+    <div class="social-grid reveal">
+        <div class="social-card">
+            <div class="emoji">&#x1F4C8;</div>
+            <div class="stat">53% growth in 13 years</div>
+            <div class="desc">India's General IIP rose from 100 to 152.6 in 13 years. Not explosive, but steady growth averaging ~3.5% annually despite a pandemic shock.</div>
+            <div class="hashtag">#IndustrialGrowth</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x26A1;</div>
+            <div class="stat">Electricity doubled: 100 &rarr; 209</div>
+            <div class="desc">Power generation surged 109% since 2011-12, outpacing every other sector. India's electricity index at 208.6 reflects massive capacity addition.</div>
+            <div class="hashtag">#PowerSector</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F48A;</div>
+            <div class="stat">Pharma: India's star at 231</div>
+            <div class="desc">Pharmaceutical production index at 231.0 &mdash; more than doubled. India's pharma sector leads all manufacturing sub-sectors by a wide margin.</div>
+            <div class="hashtag">#PharmaPower</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F4C9;</div>
+            <div class="stat">COVID crash: &minus;8.4% in 2020-21</div>
+            <div class="desc">Industrial production contracted 8.4% during the pandemic year, with Capital Goods falling 18.6%. The sharpest decline in modern IIP history.</div>
+            <div class="hashtag">#PandemicImpact</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F3D7;&#xFE0F;</div>
+            <div class="stat">Infra goods up 88%</div>
+            <div class="desc">Infrastructure &amp; Construction goods index reached 188.2 &mdash; the fastest-growing use-based category, reflecting India's massive infrastructure push.</div>
+            <div class="hashtag">#InfraGrowth</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x2699;&#xFE0F;</div>
+            <div class="stat">Capital Goods: The rollercoaster</div>
+            <div class="desc">Capital Goods index fell from 108.4 (2018-19) to 75.9 (2020-21) &mdash; a 30% crash &mdash; before recovering to 112.6. Investment demand is back.</div>
+            <div class="hashtag">#CapitalGoods</div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 1: GENERAL IIP TREND ====== -->
+<section class="report-section" id="general-iip">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <h2>General IIP Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The Index of Industrial Production (IIP) measures changes in the volume of production across mining, manufacturing, and electricity sectors. India's General IIP has grown from the 2011-12 base of 100 to 152.6, with a sharp pandemic dip and strong recovery.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>General IIP Index &amp; Growth Rate (2012-13 to 2024-25)</h3>
+                <canvas id="chartGeneralIIP"></canvas>
+                <div class="insight"><strong>Key insight:</strong> The pandemic year 2020-21 saw a &minus;8.4% contraction, but the recovery in 2021-22 was equally dramatic at +11.4%. Since then, growth has stabilised at 4&ndash;6% annually.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 2: SECTORAL INDICES ====== -->
+<section class="report-section" id="sectoral">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <h2>Sectoral Indices</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">IIP is composed of three broad sectors: Mining, Manufacturing, and Electricity. While Manufacturing dominates with 77.6% weight, Electricity has been the standout performer &mdash; more than doubling since the base year.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Mining, Manufacturing &amp; Electricity Indices (2012-13 to 2024-25)</h3>
+                <canvas id="chartSectoral"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Electricity (208.6) has massively outpaced Manufacturing (150.6) and Mining (132.8). India's power generation capacity additions have driven this divergence.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 3: USE-BASED CLASSIFICATION ====== -->
+<section class="report-section" id="use-based">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <h2>Use-Based Classification</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">IIP is also classified by end-use: Primary goods, Capital goods, Intermediate goods, Infrastructure/Construction goods, Consumer Durables, and Consumer Non-durables. Each tells a different story about India's industrial demand structure.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Use-Based Indices (2012-13 to 2024-25)</h3>
+                <canvas id="chartUseBased"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Infrastructure &amp; Construction goods (188.2) lead all use-based categories, reflecting India's massive infra spending. Capital Goods (112.6) remain the weakest, barely above base despite recovery.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 4: CAPITAL vs CONSUMER ====== -->
+<section class="report-section" id="capital-consumer">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <h2>Capital vs Consumer Goods</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Capital Goods reflect investment demand while Consumer goods signal household consumption. The contrast between volatile Capital Goods and steady Consumer Non-durables reveals the structural dynamics of Indian industry.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Capital Goods vs Consumer Durables vs Consumer Non-durables</h3>
+                <canvas id="chartCapitalConsumer"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Consumer Non-durables (151.4) have been the most resilient &mdash; barely dipping even during COVID. Capital Goods (112.6) crashed 30% during the pandemic and is still recovering. Consumer Durables (128.0) sit in between.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 5: MANUFACTURING SUB-SECTORS ====== -->
+<section class="report-section" id="manufacturing">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <h2>Manufacturing Sub-sectors</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Within Manufacturing, certain sub-sectors have dramatically outperformed others. Pharma and Basic Metals have more than doubled, while some traditional sectors have lagged behind.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Top Manufacturing Sub-sectors by Index Value &mdash; 2024-25</h3>
+                <canvas id="chartManufacturing" style="max-height:420px;"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Pharma (231.0) and Basic Metals (228.4) have more than doubled since the base year, reflecting India's growing pharmaceutical exports and steel production capacity.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 6: GROWTH RATE COMPARISON ====== -->
+<section class="report-section" id="growth">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">06</span>
+            <h2>Growth Rate Comparison</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Which manufacturing sub-sectors grew the fastest in 2024-25? Electrical Equipment leads with a remarkable 22.4% growth, followed by Furniture at 16.8%. These growth leaders indicate structural shifts in India's manufacturing landscape.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Top Growth Rates by Sub-sector &mdash; 2024-25 (%)</h3>
+                <canvas id="chartGrowth" style="max-height:420px;"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Electrical Equipment's 22.4% growth reflects surging demand for transformers, switchgear, and EV components. Furniture (16.8%) and Other Transport Equipment (11.5%) round out the top three.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 7: SECTORAL COMPOSITION DOUGHNUTS ====== -->
+<section class="report-section" id="top-sectors">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">07</span>
+            <h2>Sectoral Composition</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The IIP basket is composed of three sectors and six use-based categories, each with specific weights. Manufacturing dominates at 77.6%, while among use-based categories, Primary goods hold the largest share at 34.0%.</p>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Sectoral Weights (%)</h3>
+                <canvas id="chartSectoralWeights"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Use-Based Weights (%)</h3>
+                <canvas id="chartUseBasedWeights"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 8: DATA TABLE ====== -->
+<section class="report-section" id="data-table">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">08</span>
+            <h2>Reference Data Table</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Complete IIP data for General Index and all three sectors (Annual, Base 2011-12=100).</p>
+        <div class="data-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>General</th>
+                        <th>Mining</th>
+                        <th>Manufacturing</th>
+                        <th>Electricity</th>
+                        <th>Growth %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2012-13</td><td>103.3</td><td>103.3</td><td>103.8</td><td>104.0</td><td>3.3</td></tr>
+                    <tr><td>2013-14</td><td>106.7</td><td>100.0</td><td>106.5</td><td>110.0</td><td>3.3</td></tr>
+                    <tr><td>2014-15</td><td>111.0</td><td>101.0</td><td>110.5</td><td>121.5</td><td>4.0</td></tr>
+                    <tr><td>2015-16</td><td>114.7</td><td>105.1</td><td>113.5</td><td>129.7</td><td>3.3</td></tr>
+                    <tr><td>2016-17</td><td>120.0</td><td>105.7</td><td>119.2</td><td>138.0</td><td>4.6</td></tr>
+                    <tr><td>2017-18</td><td>125.3</td><td>108.3</td><td>124.8</td><td>145.4</td><td>4.4</td></tr>
+                    <tr><td>2018-19</td><td>130.1</td><td>111.5</td><td>130.4</td><td>152.7</td><td>3.8</td></tr>
+                    <tr><td>2019-20</td><td>129.0</td><td>107.7</td><td>129.7</td><td>153.1</td><td>&minus;0.8</td></tr>
+                    <tr><td>2020-21</td><td>118.1</td><td>101.0</td><td>117.4</td><td>151.0</td><td>&minus;8.4</td></tr>
+                    <tr><td>2021-22</td><td>131.6</td><td>113.3</td><td>130.9</td><td>170.0</td><td>11.4</td></tr>
+                    <tr><td>2022-23</td><td>138.5</td><td>119.9</td><td>137.1</td><td>185.2</td><td>5.2</td></tr>
+                    <tr><td>2023-24</td><td>146.7</td><td>128.9</td><td>144.7</td><td>198.3</td><td>5.9</td></tr>
+                    <tr><td>2024-25</td><td>152.6</td><td>132.8</td><td>150.6</td><td>208.6</td><td>4.0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <p>Data sourced from <a href="https://www.mospi.gov.in" target="_blank">MoSPI</a> via eSankhyiki API &middot; Index of Industrial Production (Base 2011-12=100)</p>
+    <p>Annual indices, All India. Figures may differ from monthly averages.</p>
+    <div class="footer-dashboards">
+        <a href="../india-gdp-report/">GDP</a> &middot;
+        <a href="../india-inflation-report/">CPI Inflation</a> &middot;
+        <a href="../india-employment-report/">Employment</a> &middot;
+        <strong>IIP</strong> &middot;
+        <a href="../india-factory-report/">Factory Survey</a> &middot;
+        <a href="../india-wholesale-prices-report/">WPI</a> &middot;
+        <a href="../india-energy-report/">Energy</a>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop">&uarr;</a>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#a0aec0';
+Chart.defaults.plugins.datalabels.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(8,13,24,0.95)';
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 13 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+
+const tooltipStyle = {
+    backgroundColor: 'rgba(8,13,24,0.95)',
+    titleFont: { weight: '600', size: 13 },
+    bodyFont: { size: 12 },
+    padding: 12, cornerRadius: 8,
+    borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1
+};
+const gridStyle = { color: 'rgba(255,255,255,0.04)', drawBorder: false };
+const scaleX = { grid: { display: false }, ticks: { font: { size: 11 } } };
+const scaleY = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: false };
+const scaleYZero = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: true };
+
+const doughnutLabelOpts = {
+    display: true,
+    color: '#e8edf5',
+    font: { size: 11, weight: '600' },
+    formatter: (v) => v > 5 ? v.toFixed(1) + '%' : ''
+};
+
+// ===== DATA =====
+const years = ['2012-13','2013-14','2014-15','2015-16','2016-17','2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24','2024-25'];
+
+// General IIP
+const generalIndex = [103.3, 106.7, 111.0, 114.7, 120.0, 125.3, 130.1, 129.0, 118.1, 131.6, 138.5, 146.7, 152.6];
+const growthRate = [3.3, 3.3, 4.0, 3.3, 4.6, 4.4, 3.8, -0.8, -8.4, 11.4, 5.2, 5.9, 4.0];
+
+// Sectoral
+const mining = [103.3, 100.0, 101.0, 105.1, 105.7, 108.3, 111.5, 107.7, 101.0, 113.3, 119.9, 128.9, 132.8];
+const manufacturing = [103.8, 106.5, 110.5, 113.5, 119.2, 124.8, 130.4, 129.7, 117.4, 130.9, 137.1, 144.7, 150.6];
+const electricity = [104.0, 110.0, 121.5, 129.7, 138.0, 145.4, 152.7, 153.1, 151.0, 170.0, 185.2, 198.3, 208.6];
+
+// Use-Based
+const primary = [100.5, 102.8, 106.7, 112.0, 117.5, 121.8, 126.1, 127.0, 118.1, 129.5, 139.2, 147.7, 153.5];
+const capital = [100.3, 96.6, 95.5, 98.4, 101.5, 105.6, 108.4, 93.3, 75.9, 88.7, 100.3, 106.6, 112.6];
+const intermediate = [105.1, 109.9, 116.6, 118.4, 122.3, 125.1, 126.2, 137.7, 124.7, 143.9, 149.4, 157.3, 164.0];
+const infrastructure = [105.4, 111.4, 117.0, 120.3, 125.0, 132.0, 141.7, 136.6, 124.7, 148.2, 160.7, 176.3, 188.2];
+const consumerDurables = [104.9, 110.8, 115.2, 119.1, 122.6, 123.6, 130.4, 119.0, 101.2, 113.8, 114.5, 118.6, 128.0];
+const consumerNonDurables = [106.1, 110.0, 114.2, 117.2, 126.5, 139.9, 145.5, 145.3, 142.1, 146.7, 147.7, 153.7, 151.4];
+
+// Manufacturing sub-sectors (2024-25 index)
+const mfgLabels = ['Pharma', 'Basic Metals', 'Furniture', 'Infra Minerals', 'Petroleum', 'Motor Vehicles', 'Electronics', 'Food Products', 'Electrical Equipment', 'Chemicals'];
+const mfgValues = [231.0, 228.4, 225.3, 150.6, 137.4, 133.7, 133.0, 131.0, 130.6, 129.3];
+
+// Growth rates 2024-25
+const growthLabels = ['Electrical Equipment', 'Furniture', 'Other Transport', 'Electronics', 'Consumer Durables', 'Basic Metals', 'Infra/Constr', 'Wearing Apparel', 'Fab. Metals', 'Capital Goods'];
+const growthValues = [22.4, 16.8, 11.5, 9.3, 7.9, 6.7, 6.7, 6.2, 6.2, 5.6];
+
+// ========== CHART 1: General IIP with dual axis ==========
+new Chart(document.getElementById('chartGeneralIIP'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                type: 'line',
+                label: 'General IIP Index',
+                data: generalIndex,
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249,115,22,0.08)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                borderWidth: 2.5,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Growth Rate %',
+                data: growthRate,
+                backgroundColor: growthRate.map(v => v < 0 ? 'rgba(96,165,250,0.5)' : 'rgba(249,115,22,0.4)'),
+                borderColor: growthRate.map(v => v < 0 ? '#60a5fa' : '#f97316'),
+                borderWidth: 1,
+                borderRadius: 4,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { position: 'left', ...scaleY, title: { display: true, text: 'Index (2011-12=100)', color: '#6b7a90', font: { size: 11 } } },
+            y1: { position: 'right', grid: { display: false }, ticks: { font: { size: 11 }, callback: v => v + '%' }, title: { display: true, text: 'Growth Rate (%)', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 2: Sectoral Indices ==========
+new Chart(document.getElementById('chartSectoral'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Electricity', data: electricity, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Manufacturing', data: manufacturing, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Mining', data: mining, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2011-12=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 3: Use-Based Classification ==========
+new Chart(document.getElementById('chartUseBased'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Infrastructure/Constr', data: infrastructure, borderColor: '#f97316', tension: 0.35, pointRadius: 3, borderWidth: 2.5 },
+            { label: 'Intermediate', data: intermediate, borderColor: '#34d399', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Primary', data: primary, borderColor: '#60a5fa', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Consumer Non-durables', data: consumerNonDurables, borderColor: '#a78bfa', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Consumer Durables', data: consumerDurables, borderColor: '#e879f9', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Capital', data: capital, borderColor: '#fbbf24', tension: 0.35, pointRadius: 3, borderWidth: 2, borderDash: [5,3] }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2011-12=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 4: Capital vs Consumer ==========
+new Chart(document.getElementById('chartCapitalConsumer'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Consumer Non-durables', data: consumerNonDurables, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Consumer Durables', data: consumerDurables, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Capital Goods', data: capital, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2011-12=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 5: Manufacturing Sub-sectors (Horizontal Bar) ==========
+new Chart(document.getElementById('chartManufacturing'), {
+    type: 'bar',
+    data: {
+        labels: mfgLabels,
+        datasets: [{
+            data: mfgValues,
+            backgroundColor: ['#f97316','#fb923c','#fbbf24','#60a5fa','#34d399','#a78bfa','#38bdf8','#e879f9','#e05252','#8b7ec8'],
+            borderRadius: 4, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.5,
+        scales: {
+            x: { ...scaleYZero, min: 100, title: { display: true, text: 'Index (2011-12=100)', color: '#6b7a90', font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) }
+        }
+    }
+});
+
+// ========== CHART 6: Growth Rate Comparison (Horizontal Bar) ==========
+new Chart(document.getElementById('chartGrowth'), {
+    type: 'bar',
+    data: {
+        labels: growthLabels,
+        datasets: [{
+            data: growthValues,
+            backgroundColor: growthValues.map(v => v > 10 ? 'rgba(249,115,22,0.7)' : v > 6 ? 'rgba(251,191,36,0.6)' : 'rgba(96,165,250,0.5)'),
+            borderColor: growthValues.map(v => v > 10 ? '#f97316' : v > 6 ? '#fbbf24' : '#60a5fa'),
+            borderWidth: 1,
+            borderRadius: 4, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.5,
+        scales: {
+            x: { ...scaleYZero, title: { display: true, text: 'Growth Rate (%)', color: '#6b7a90', font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' }
+        }
+    }
+});
+
+// ========== CHART 7a: Sectoral Weights Doughnut ==========
+new Chart(document.getElementById('chartSectoralWeights'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Manufacturing', 'Mining', 'Electricity'],
+        datasets: [{
+            data: [77.6, 14.4, 8.0],
+            backgroundColor: ['#f97316', '#60a5fa', '#fbbf24'],
+            borderColor: '#141e30',
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.2,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle,
+            datalabels: doughnutLabelOpts
+        }
+    }
+});
+
+// ========== CHART 7b: Use-Based Weights Doughnut ==========
+new Chart(document.getElementById('chartUseBasedWeights'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Primary', 'Intermediate', 'Consumer Non-dur.', 'Consumer Durables', 'Infra/Constr', 'Capital'],
+        datasets: [{
+            data: [34.0, 17.2, 15.3, 12.8, 12.3, 8.2],
+            backgroundColor: ['#60a5fa', '#34d399', '#a78bfa', '#e879f9', '#f97316', '#fbbf24'],
+            borderColor: '#141e30',
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.2,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } },
+            tooltip: tooltipStyle,
+            datalabels: doughnutLabelOpts
+        }
+    }
+});
+
+// ========== SCROLL ANIMATIONS & NAV ==========
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backBtn = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section, .social-section');
+const navLinksEl = document.getElementById('navLinks');
+const navLinks = navLinksEl ? navLinksEl.querySelectorAll('a') : [];
+
+window.addEventListener('scroll', () => {
+    const st = window.scrollY;
+    nav.classList.toggle('scrolled', st > 40);
+    backBtn.classList.toggle('visible', st > 600);
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    navProgress.style.width = h > 0 ? (st / h * 100) + '%' : '0%';
+
+    let current = '';
+    sections.forEach(s => {
+        if (s.offsetTop - 120 <= st) current = s.id;
+    });
+    navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+}, { passive: true });
+</script>
+</body>
+</html>

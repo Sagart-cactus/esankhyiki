@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eSankhyiki — India Statistics Dashboard Collection</title>
+    <meta name="description" content="Seven interactive data dashboards visualizing India's official statistics from MoSPI — GDP, inflation, employment, industrial production, factory survey, wholesale prices, and energy.">
+    <meta property="og:title" content="eSankhyiki — India Statistics Dashboard Collection">
+    <meta property="og:description" content="Seven interactive data dashboards visualizing India's official statistics from the Ministry of Statistics (MoSPI).">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #060606;
+            --bg: #0a0a0a;
+            --card: #111111;
+            --card-hover: #181818;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #fafafa;
+            --text-secondary: #a0a0a0;
+            --muted: #666666;
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+        /* Hero */
+        .hero { position: relative; padding: 120px 24px 80px; overflow: hidden; background: var(--bg-deep); text-align: center; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(255,255,255,0.03) 0%, transparent 70%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.3; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+        .hero h1 { font-family: var(--font-display); font-size: 3.6rem; font-weight: 900; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .hero h1 .e { color: #f43f5e; }
+        .hero h1 .san { color: #fafafa; }
+        .hero h1 .khyi { color: #10b981; }
+        .hero h1 .ki { color: #3b82f6; }
+        .hero .subtitle { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 28px; }
+        .hero p { color: var(--muted); font-size: 0.95rem; max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+        /* Grid */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 64px 0 80px; }
+
+        /* Cards */
+        .dash-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 32px 28px 28px; position: relative; overflow: hidden; text-decoration: none; color: inherit; transition: transform 0.3s cubic-bezier(.2,.8,.4,1), box-shadow 0.3s, border-color 0.3s; display: flex; flex-direction: column; }
+        .dash-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0; }
+        .dash-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-color: var(--border-light); }
+        .dash-card:hover::after { opacity: 1; }
+
+        .dash-card .icon { font-size: 2rem; margin-bottom: 16px; display: block; }
+        .dash-card h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+        .dash-card .dataset { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+        .dash-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px; flex: 1; }
+        .dash-card .meta { display: flex; gap: 16px; color: var(--muted); font-size: 0.75rem; margin-top: auto; }
+        .dash-card .meta span { display: flex; align-items: center; gap: 4px; }
+        .dash-card .arrow { position: absolute; top: 28px; right: 24px; color: var(--muted); font-size: 1.2rem; transition: transform 0.3s, color 0.3s; }
+        .dash-card:hover .arrow { transform: translate(3px, -3px); }
+
+        /* Card accents */
+        .card-gdp::before { background: #10b981; }
+        .card-gdp::after { background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.08), transparent 70%); }
+        .card-gdp:hover .arrow { color: #10b981; }
+        .card-gdp .dataset { color: #10b981; }
+        .card-gdp h2 { color: #34d399; }
+
+        .card-cpi::before { background: #f43f5e; }
+        .card-cpi::after { background: radial-gradient(ellipse at 50% 0%, rgba(244,63,94,0.08), transparent 70%); }
+        .card-cpi:hover .arrow { color: #f43f5e; }
+        .card-cpi .dataset { color: #f43f5e; }
+        .card-cpi h2 { color: #fb7185; }
+
+        .card-plfs::before { background: #3b82f6; }
+        .card-plfs::after { background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.08), transparent 70%); }
+        .card-plfs:hover .arrow { color: #3b82f6; }
+        .card-plfs .dataset { color: #3b82f6; }
+        .card-plfs h2 { color: #60a5fa; }
+
+        .card-iip::before { background: #f97316; }
+        .card-iip::after { background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.08), transparent 70%); }
+        .card-iip:hover .arrow { color: #f97316; }
+        .card-iip .dataset { color: #f97316; }
+        .card-iip h2 { color: #fb923c; }
+
+        .card-asi::before { background: #d97706; }
+        .card-asi::after { background: radial-gradient(ellipse at 50% 0%, rgba(217,119,6,0.08), transparent 70%); }
+        .card-asi:hover .arrow { color: #d97706; }
+        .card-asi .dataset { color: #d97706; }
+        .card-asi h2 { color: #f59e0b; }
+
+        .card-wpi::before { background: #eab308; }
+        .card-wpi::after { background: radial-gradient(ellipse at 50% 0%, rgba(234,179,8,0.08), transparent 70%); }
+        .card-wpi:hover .arrow { color: #eab308; }
+        .card-wpi .dataset { color: #eab308; }
+        .card-wpi h2 { color: #facc15; }
+
+        .card-energy::before { background: #14b8a6; }
+        .card-energy::after { background: radial-gradient(ellipse at 50% 0%, rgba(20,184,166,0.08), transparent 70%); }
+        .card-energy:hover .arrow { color: #14b8a6; }
+        .card-energy .dataset { color: #14b8a6; }
+        .card-energy h2 { color: #2dd4bf; }
+
+        /* Featured card spans full width */
+        .dash-card.featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; padding: 40px 36px; }
+        .featured .card-left { display: flex; flex-direction: column; }
+        .featured .card-right { display: flex; flex-direction: column; gap: 8px; }
+        .featured .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .featured .stat-row:last-child { border-bottom: none; }
+        .featured .stat-label { color: var(--text-secondary); font-size: 0.85rem; }
+        .featured .stat-value { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; color: var(--muted); font-size: 0.8rem; }
+        footer a { color: var(--text-secondary); text-decoration: none; }
+        footer a:hover { color: var(--text); }
+        footer .source-line { margin-top: 8px; }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s cubic-bezier(.16,1,.3,1), transform 0.6s cubic-bezier(.16,1,.3,1); }
+        .reveal.visible { opacity: 1; transform: none; }
+        .reveal-stagger { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.16,1,.3,1), transform 0.5s cubic-bezier(.16,1,.3,1); }
+        .reveal-stagger.visible { opacity: 1; transform: none; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .dash-card.featured { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .hero { padding: 80px 20px 56px; }
+            .hero h1 { font-size: 2.4rem; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 16px; padding: 40px 0 56px; }
+            .dash-card.featured { padding: 28px 24px; }
+        }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 2rem; }
+            .hero .subtitle { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1><span class="e">e</span><span class="san">Sankhyi</span><span class="khyi">k</span><span class="ki">i</span></h1>
+        <p class="subtitle">India's Statistics, Visualized</p>
+        <p>Seven interactive dashboards built on official data from the Ministry of Statistics &amp; Programme Implementation (MoSPI), covering the Indian economy from GDP to energy consumption.</p>
+    </div>
+</section>
+
+<main class="container">
+    <div class="dashboard-grid">
+
+        <a href="india-gdp-report/" class="dash-card card-gdp featured reveal">
+            <div class="card-left">
+                <span class="arrow">&nearr;</span>
+                <span class="dataset">National Accounts Statistics</span>
+                <h2>GDP &amp; National Accounts</h2>
+                <p class="desc">India's macroeconomic story &mdash; GDP at constant and current prices, sectoral GVA composition, consumption, investment (GFCF), trade, and gross savings from 2011-12 to 2024-25.</p>
+                <div class="meta">
+                    <span>8 charts</span>
+                    <span>2011&ndash;2025</span>
+                    <span>Emerald</span>
+                </div>
+            </div>
+            <div class="card-right">
+                <div class="stat-row"><span class="stat-label">GDP (Current, 2024-25 PE)</span><span class="stat-value" style="color:#34d399">&#8377;324.1L Cr</span></div>
+                <div class="stat-row"><span class="stat-label">Real GDP Growth</span><span class="stat-value" style="color:#34d399">6.5%</span></div>
+                <div class="stat-row"><span class="stat-label">Services Share of GVA</span><span class="stat-value" style="color:#34d399">&gt;54%</span></div>
+                <div class="stat-row"><span class="stat-label">GFCF (2024-25 PE)</span><span class="stat-value" style="color:#34d399">&#8377;98.9L Cr</span></div>
+            </div>
+        </a>
+
+        <a href="india-inflation-report/" class="dash-card card-cpi reveal-stagger">
+            <span class="arrow">&nearr;</span>
+            <span class="dataset">Consumer Price Index</span>
+            <h2>CPI Inflation</h2>
+            <p class="desc">Consumer price trends across rural, urban, and combined indices &mdash; food, fuel, housing, and state-wise breakdowns.</p>
+            <div class="meta">
+                <span>10 charts</span>
+                <span>2014&ndash;2025</span>
+            </div>
+        </a>
+
+        <a href="india-employment-report/" class="dash-card card-plfs reveal-stagger">
+            <span class="arrow">&nearr;</span>
+            <span class="dataset">Periodic Labour Force Survey</span>
+            <h2>Employment &amp; Labour</h2>
+            <p class="desc">Unemployment rate, LFPR, worker participation, gender gaps, youth employment, wages, and worker distribution.</p>
+            <div class="meta">
+                <span>8 charts</span>
+                <span>2017&ndash;2024</span>
+            </div>
+        </a>
+
+        <a href="india-industrial-report/" class="dash-card card-iip reveal-stagger">
+            <span class="arrow">&nearr;</span>
+            <span class="dataset">Index of Industrial Production</span>
+            <h2>Industrial Production</h2>
+            <p class="desc">IIP trends across mining, manufacturing, and electricity &mdash; use-based classification, capital goods, and sub-sector analysis.</p>
+            <div class="meta">
+                <span>8 charts</span>
+                <span>2012&ndash;2025</span>
+            </div>
+        </a>
+
+        <a href="india-factory-report/" class="dash-card card-asi reveal-stagger">
+            <span class="arrow">&nearr;</span>
+            <span class="dataset">Annual Survey of Industries</span>
+            <h2>Factory Sector Survey</h2>
+            <p class="desc">India's organised manufacturing &mdash; factory count, output, GVA, profitability, employment, gender, and contractualization trends.</p>
+            <div class="meta">
+                <span>8 charts</span>
+                <span>2016&ndash;2024</span>
+            </div>
+        </a>
+
+        <a href="india-wholesale-prices-report/" class="dash-card card-wpi reveal-stagger">
+            <span class="arrow">&nearr;</span>
+            <span class="dataset">Wholesale Price Index</span>
+            <h2>Wholesale Prices</h2>
+            <p class="desc">WPI trends for primary articles, fuel &amp; power, manufactured products, and food &mdash; composition, volatility, and YoY inflation.</p>
+            <div class="meta">
+                <span>8 charts</span>
+                <span>2013&ndash;2025</span>
+            </div>
+        </a>
+
+        <a href="india-energy-report/" class="dash-card card-energy reveal-stagger">
+            <span class="arrow">&nearr;</span>
+            <span class="dataset">Energy Statistics India</span>
+            <h2>Energy &amp; Power</h2>
+            <p class="desc">India's energy balance &mdash; supply, production, imports, coal dependency, oil products, renewable transition, and sectoral consumption.</p>
+            <div class="meta">
+                <span>14 charts</span>
+                <span>2012&ndash;2024</span>
+            </div>
+        </a>
+
+    </div>
+</main>
+
+<footer>
+    <div>Built with data from <a href="https://www.mospi.gov.in/" target="_blank" rel="noopener">MoSPI</a> via the eSankhyiki API</div>
+    <div class="source-line">All data is sourced from official Government of India publications</div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach((el, i) => {
+    if (el.classList.contains('reveal-stagger')) el.style.transitionDelay = (i * 80) + 'ms';
+    obs.observe(el);
+});
+</script>
+
+</body>
+</html>

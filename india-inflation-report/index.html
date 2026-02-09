@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Consumer Price Index Report | MoSPI Data 2014-2025</title>
+    <meta name="description" content="Interactive report on India's Consumer Price Index from MoSPI — covering CPI trends, food inflation, fuel & light, housing, rural vs urban, and state-wise analysis.">
+    <meta property="og:title" content="India CPI & Inflation Report 2014-2025">
+    <meta property="og:description" content="CPI General rose 70% in a decade. Food inflation hit 13.6% in Jan 2020. Explore India's inflation story through interactive charts.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --accent: #f43f5e;
+            --accent-light: #fb7185;
+            --accent-glow: rgba(244, 63, 94, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-1: #f43f5e;
+            --chart-2: #60a5fa;
+            --chart-3: #34d399;
+            --chart-4: #fbbf24;
+            --chart-5: #a78bfa;
+            --chart-6: #fb923c;
+            --chart-7: #38bdf8;
+            --chart-8: #e879f9;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(8, 13, 24, 0.85); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); border-bottom: 1px solid var(--border); height: var(--nav-height); display: flex; align-items: center; transition: box-shadow 0.3s; }
+        .site-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .nav-brand { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--accent-light); white-space: nowrap; letter-spacing: -0.01em; }
+        .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; transition: color 0.2s, background 0.2s; letter-spacing: 0.01em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent-light); }
+        .nav-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--chart-2)); width: 0%; transition: width 0.15s; }
+        .hero { position: relative; padding: 100px 24px 70px; overflow: hidden; background: var(--bg-deep); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(244, 63, 94, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(96, 165, 250, 0.05) 0%, transparent 60%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.35; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .hero-text h1 { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-text h1 span { display: block; color: var(--accent-light); font-size: 0.5em; font-weight: 400; font-style: italic; margin-top: 4px; letter-spacing: 0; }
+        .hero-text p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 20px; line-height: 1.7; }
+        .hero-text .source { color: var(--muted); font-size: 0.8rem; }
+        .hero-text .source a { color: var(--accent); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+        .hero-stat { text-align: right; padding-right: 20px; }
+        .hero-stat .big-number { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; color: var(--accent); opacity: 0.18; letter-spacing: -0.04em; }
+        .hero-stat .big-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+        .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 48px 0 32px; }
+        .highlight-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 10px; padding: 22px 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s; }
+        .highlight-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+        .highlight-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--accent); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--chart-2); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, rgba(96,165,250,0.12), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--chart-4); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--chart-6); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, rgba(251,146,60,0.12), transparent 70%); }
+        .highlight-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.02em; }
+        .highlight-card .label { color: var(--text-secondary); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+        .highlight-card .sublabel { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+        .report-section { padding: 56px 0 48px; position: relative; }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+        .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+        .section-num { font-family: var(--font-display); font-size: 3rem; font-weight: 300; color: var(--accent); opacity: 0.2; line-height: 1; letter-spacing: -0.04em; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .section-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: 0.95rem; max-width: 720px; line-height: 1.7; }
+        .section-divider { width: 48px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 12px 0 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; position: relative; }
+        .chart-card h3 { font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .insight { background: rgba(244, 63, 94, 0.06); border-left: 3px solid var(--accent); padding: 14px 18px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        .insight strong { color: var(--text); font-weight: 600; }
+        .social-section { padding: 56px 0; }
+        .social-section h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; margin-bottom: 28px; }
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .social-card { background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95)); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden; backdrop-filter: blur(8px); transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s; }
+        .social-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--chart-2), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--chart-4), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--chart-6), transparent 80%); }
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+        .social-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+        .social-card .hashtag { margin-top: 14px; color: var(--accent); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.01em; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+        thead { position: sticky; top: 0; z-index: 2; }
+        th { padding: 12px 16px; text-align: right; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(244, 63, 94, 0.04); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 48px 24px; background: var(--bg-deep); border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+        .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: var(--card); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 90; text-decoration: none; }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { background: var(--card-hover); color: var(--text); }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-stagger > .highlight-card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1); }
+        .reveal-stagger.visible > .highlight-card { opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+        @media (max-width: 1024px) { .highlights { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .hero-stat { display: none; } .hero-text h1 { font-size: 2.4rem; } }
+        @media (max-width: 700px) { .hero { padding: 80px 20px 50px; } .hero-text h1 { font-size: 1.8rem; } .hero-text p { font-size: 0.95rem; } .highlights { grid-template-columns: 1fr 1fr; gap: 10px; } .highlight-card { padding: 16px 14px; } .highlight-card .number { font-size: 1.5rem; } .highlight-card .label { font-size: 0.75rem; } .section-header h2 { font-size: 1.3rem; } .section-num { font-size: 2rem; } .social-grid { grid-template-columns: 1fr; } .nav-brand { display: none; } .nav-links a { font-size: 0.65rem; padding: 4px 7px; } .chart-card { padding: 20px 16px; } }
+        @media (max-width: 480px) { .highlights { grid-template-columns: 1fr; } .nav-links { gap: 2px; } }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India CPI</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#social">Highlights</a>
+            <a href="#cpi-trend">CPI Trend</a>
+            <a href="#inflation">Inflation</a>
+            <a href="#food">Food</a>
+            <a href="#groups">Groups</a>
+            <a href="#fuel">Fuel</a>
+            <a href="#housing">Housing</a>
+            <a href="#rural-urban">Rural vs Urban</a>
+            <a href="#states">States</a>
+            <a href="#misc">Services</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India Consumer<br>Price Index <span>Tracking the cost of living, 2014&ndash;2025</span></h1>
+            <p>From a base of 100 in 2012 to 193.4 in January 2025 &mdash; the cost of living in India has risen 93% in just over a decade, shaped by food price spikes, fuel shocks, a pandemic, and sticky core inflation.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation</a> &middot; CPI (Base 2012=100) via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">193.4</div>
+            <div class="big-label">CPI General Index &middot; Jan 2025</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<div class="container">
+    <div class="highlights reveal-stagger">
+        <div class="highlight-card">
+            <div class="number" style="color: var(--accent);">193.4</div>
+            <div class="label">CPI General Index (Combined)</div>
+            <div class="sublabel">January 2025 &middot; Base 2012=100</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-2);">200.9</div>
+            <div class="label">Food &amp; Beverages Index</div>
+            <div class="sublabel">Crossed 200 mark &middot; Jan 2025</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--crimson);">4.26%</div>
+            <div class="label">YoY Headline Inflation</div>
+            <div class="sublabel">Combined sector &middot; Jan 2025</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--lavender);">178.2</div>
+            <div class="label">Fuel &amp; Light Index</div>
+            <div class="sublabel">Deflation at &minus;1.5% YoY &middot; Jan 2025</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-4);">182.6</div>
+            <div class="label">Housing Index</div>
+            <div class="sublabel">Steady at 2.8% inflation &middot; Jan 2025</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-6);">200.6</div>
+            <div class="label">Consumer Food Price Index</div>
+            <div class="sublabel">5.97% YoY inflation &middot; Jan 2025</div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== SOCIAL CARDS ====== -->
+<section class="social-section container" id="social">
+    <h2 class="reveal">Share-worthy Facts</h2>
+    <div class="social-grid reveal">
+        <div class="social-card">
+            <div class="emoji">&#x1F4C8;</div>
+            <div class="stat">93% rise in 12 years</div>
+            <div class="desc">India's CPI General Index went from 100 (2012 base) to 193.4 in January 2025. Your rupee from 2012 now buys only about half of what it used to.</div>
+            <div class="hashtag">#CostOfLiving #IndiaInflation</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F966;</div>
+            <div class="stat">Vegetables: 27% spike in Jan 2024</div>
+            <div class="desc">Vegetable prices are India's inflation wildcard &mdash; swinging from &minus;11.7% deflation (Jan 2023) to +27.1% inflation (Jan 2024) in just one year.</div>
+            <div class="hashtag">#FoodInflation #VegetablePrices</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F3E0;</div>
+            <div class="stat">Housing: 83% up since 2012</div>
+            <div class="desc">The Housing CPI index reached 182.6 in Jan 2025. Urban rents and housing costs have been a persistent upward pressure on the cost of living.</div>
+            <div class="hashtag">#HousingCrisis #UrbanIndia</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F525;</div>
+            <div class="stat">Fuel peaked at 182 in Jan 2023</div>
+            <div class="desc">Fuel &amp; Light CPI surged to 182.0 (10.8% YoY) in Jan 2023 after Russia-Ukraine war shocks, then declined to 178.2 with back-to-back deflation.</div>
+            <div class="hashtag">#FuelPrices #EnergyShock</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F3D8;&#xFE0F;</div>
+            <div class="stat">Rural inflation > Urban by 0.7pp</div>
+            <div class="desc">In January 2025, rural CPI inflation stood at 4.59% vs urban 3.87%. Rural households consistently face higher food-driven inflation.</div>
+            <div class="hashtag">#RuralIndia #InflationGap</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F3E5;</div>
+            <div class="stat">Health costs up 99% since 2012</div>
+            <div class="desc">The Health subgroup CPI reached 198.8 in Jan 2025 &mdash; nearly double the base year. Healthcare inflation has been a silent squeeze on household budgets.</div>
+            <div class="hashtag">#HealthcareCosts #MedicalInflation</div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 1: CPI GENERAL TREND ====== -->
+<section class="report-section" id="cpi-trend">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <h2>CPI General Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The Consumer Price Index (CPI) measures changes in the price level of a weighted basket of consumer goods and services. India's CPI has risen steadily from the 2012 base, with Rural CPI consistently above Urban.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>CPI General Index &mdash; Rural, Urban &amp; Combined (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartCpiTrend"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Rural CPI (195.9) has been consistently higher than Urban (190.6) across the entire period, reflecting higher food weights in rural consumption baskets.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 2: INFLATION RATE ====== -->
+<section class="report-section" id="inflation">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <h2>Headline Inflation Rate</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Year-on-year inflation rate for the General CPI (Combined). The RBI targets 4% inflation with a &plusmn;2% tolerance band (2&ndash;6%). In January 2020, headline inflation spiked to 7.59% driven by food prices.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>YoY Inflation Rate &mdash; CPI General Combined (%)</h3>
+                <canvas id="chartInflation"></canvas>
+                <div class="insight"><strong>Key insight:</strong> After the 2020 food-driven spike (7.59%), inflation stayed elevated through 2022&ndash;23 (above 6%) before moderating to 4.26% in Jan 2025 &mdash; back within the RBI comfort zone.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 3: FOOD DEEP DIVE ====== -->
+<section class="report-section" id="food">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <h2>Food Inflation Deep Dive</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Food &amp; Beverages carries the highest weight (~46%) in India's CPI basket. Within food, Vegetables, Cereals, and Oils &amp; Fats are the most volatile drivers. Food prices can swing wildly year-to-year due to monsoons, supply disruptions, and global commodity prices.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Food &amp; Beverages CPI vs Consumer Food Price Index (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartFoodTrend"></canvas>
+            </div>
+            <div class="chart-card full-width">
+                <h3>Food Subgroup Indices &mdash; January 2025</h3>
+                <canvas id="chartFoodSubgroups"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Spices (225.8), Meat &amp; Fish (224.4), and Vegetables (217.8) have risen the most since 2012. Oils &amp; Fats (184.1) are recovering after a sharp deflation phase. Sugar (130.5) remains well-controlled.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 4: GROUP COMPOSITION ====== -->
+<section class="report-section" id="groups">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <h2>CPI Group Breakdown</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">How different CPI groups have moved since the 2012 base. Pan &amp; Tobacco (+109%) and Food &amp; Beverages (+101%) have risen the most, while Fuel &amp; Light (+78%) has actually moderated recently.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>All CPI Groups &mdash; Index Trend (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartGroupTrend"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Group Inflation Rates &mdash; Jan 2025 (%)</h3>
+                <canvas id="chartGroupInflation"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Cumulative Price Rise since 2014 (%)</h3>
+                <canvas id="chartGroupCumulative"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 5: FUEL & LIGHT ====== -->
+<section class="report-section" id="fuel">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <h2>Fuel &amp; Light</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Fuel &amp; Light CPI tracks prices of LPG, kerosene, firewood, electricity, and other cooking/lighting fuels. It saw a massive surge in 2022&ndash;23 due to the Russia-Ukraine conflict, followed by deflation as prices corrected.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Fuel &amp; Light CPI Index &amp; Inflation Rate (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartFuel"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Fuel &amp; Light inflation peaked at 10.84% in Jan 2023, then turned negative in 2024 (&minus;0.6%) and 2025 (&minus;1.49%) &mdash; one of the few deflationary components in the basket.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 6: HOUSING ====== -->
+<section class="report-section" id="housing">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">06</span>
+            <h2>Housing</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Housing CPI measures rents and housing-related costs. It's only measured in the Urban sector and then weighted into Combined. Housing inflation spiked to 11.27% in 2014, hit 8.33% in 2018, and has since moderated to around 3%.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Housing CPI Index &amp; Inflation Rate (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartHousing"></canvas>
+                <div class="insight"><strong>Key insight:</strong> After peaking at 11.27% inflation in Jan 2014, Housing CPI has gradually moderated. The index value of 182.6 still means rents are 83% higher than in 2012.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 7: RURAL vs URBAN ====== -->
+<section class="report-section" id="rural-urban">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">07</span>
+            <h2>Rural vs Urban Inflation</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Rural and Urban India experience inflation differently. Rural baskets have higher food weights (~54% vs ~36%), making rural inflation more sensitive to food price shocks. Urban baskets have higher services and housing weights.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Rural vs Urban CPI Inflation Rate (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartRuralUrban"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Rural inflation was lower during the 2019 food deflation period (1.22% vs 2.91%) but surged higher during food spikes like 2020 (7.73% vs 7.39%). The gap reflects different consumption patterns.</div>
+            </div>
+            <div class="chart-card full-width">
+                <h3>Rural vs Urban CPI Index Level (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartRuralUrbanIndex"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 8: STATE-WISE ====== -->
+<section class="report-section" id="states">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">08</span>
+            <h2>State-wise CPI</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">CPI levels vary significantly across Indian states, reflecting different consumption patterns, local supply conditions, and market structures. Manipur records the highest CPI (220.3) while Delhi has the lowest (171.9) in January 2025.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>State-wise CPI General Index &mdash; January 2025 (Top 20 States/UTs)</h3>
+                <canvas id="chartStates" style="max-height:500px;"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Northeastern states (Manipur 220.3, Tripura 208.2) and southern states (Kerala 203.6, Telangana 202.3) have the highest CPI levels. Delhi (171.9) and Meghalaya (180.8) are at the lower end.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 9: MISCELLANEOUS / SERVICES ====== -->
+<section class="report-section" id="misc">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">09</span>
+            <h2>Services &amp; Miscellaneous</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The Miscellaneous group covers Health, Education, Transport &amp; Communication, Housing Goods, Recreation, and Personal Care. These services-driven subgroups have been a source of persistent &ldquo;core&rdquo; inflation.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Miscellaneous Subgroup Indices (Jan, 2014&ndash;2025)</h3>
+                <canvas id="chartMisc"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Personal Care &amp; Effects (209.2) and Health (198.8) have grown the fastest among services. Transport &amp; Communication (171.4) remains relatively restrained despite fuel volatility.</div>
+            </div>
+            <div class="chart-card full-width">
+                <h3>Miscellaneous Subgroup Inflation Rates &mdash; Jan 2025 (%)</h3>
+                <canvas id="chartMiscInflation"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== DATA TABLE ====== -->
+<section class="report-section" id="data-table">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">10</span>
+            <h2>Reference Data Table</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Complete CPI data for all major groups (January reading each year, Combined sector, All India, Base 2012=100).</p>
+        <div class="data-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>General</th>
+                        <th>Food &amp; Bev</th>
+                        <th>Fuel</th>
+                        <th>Housing</th>
+                        <th>Clothing</th>
+                        <th>Misc</th>
+                        <th>Inflation %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2014</td><td>113.6</td><td>115.8</td><td>112.2</td><td>111.6</td><td>115.4</td><td>110.6</td><td>8.60</td></tr>
+                    <tr><td>2015</td><td>119.5</td><td>123.1</td><td>116.5</td><td>117.3</td><td>122.5</td><td>114.0</td><td>5.19</td></tr>
+                    <tr><td>2016</td><td>126.3</td><td>131.3</td><td>122.7</td><td>123.4</td><td>129.5</td><td>118.5</td><td>5.69</td></tr>
+                    <tr><td>2017</td><td>130.3</td><td>133.1</td><td>126.8</td><td>129.6</td><td>135.6</td><td>124.4</td><td>3.17</td></tr>
+                    <tr><td>2018</td><td>136.9</td><td>139.2</td><td>136.6</td><td>140.4</td><td>142.3</td><td>129.1</td><td>5.07</td></tr>
+                    <tr><td>2019</td><td>139.6</td><td>137.4</td><td>139.5</td><td>&mdash;</td><td>146.4</td><td>136.9</td><td>1.97</td></tr>
+                    <tr><td>2020</td><td>150.2</td><td>153.5</td><td>144.6</td><td>153.9</td><td>149.2</td><td>143.4</td><td>7.59</td></tr>
+                    <tr><td>2021</td><td>156.3</td><td>157.6</td><td>150.2</td><td>158.9</td><td>154.9</td><td>152.7</td><td>4.06</td></tr>
+                    <tr><td>2022</td><td>165.7</td><td>166.4</td><td>164.2</td><td>164.5</td><td>168.5</td><td>162.7</td><td>6.01</td></tr>
+                    <tr><td>2023</td><td>176.5</td><td>176.7</td><td>182.0</td><td>172.1</td><td>183.8</td><td>172.8</td><td>6.52</td></tr>
+                    <tr><td>2024</td><td>185.5</td><td>190.1</td><td>180.9</td><td>177.6</td><td>190.0</td><td>179.4</td><td>5.10</td></tr>
+                    <tr><td>2025</td><td>193.4</td><td>200.9</td><td>178.2</td><td>182.6</td><td>195.1</td><td>187.2</td><td>4.26</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <p>Data sourced from <a href="https://www.mospi.gov.in" target="_blank">MoSPI</a> via eSankhyiki API &middot; Consumer Price Index (Base 2012=100)</p>
+    <p>January readings, All India, Combined sector. Figures may differ from annual averages.</p>
+    <div class="footer-dashboards">
+        <a href="../india-gdp-report/">GDP</a> &middot;
+        <strong>CPI Inflation</strong> &middot;
+        <a href="../india-employment-report/">Employment</a> &middot;
+        <a href="../india-industrial-report/">IIP</a> &middot;
+        <a href="../india-factory-report/">Factory Survey</a> &middot;
+        <a href="../india-wholesale-prices-report/">WPI</a> &middot;
+        <a href="../india-energy-report/">Energy</a>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop">&uarr;</a>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#a0aec0';
+Chart.defaults.plugins.datalabels.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(8,13,24,0.95)';
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 13 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+
+const tooltipStyle = {
+    backgroundColor: 'rgba(8,13,24,0.95)',
+    titleFont: { weight: '600', size: 13 },
+    bodyFont: { size: 12 },
+    padding: 12, cornerRadius: 8,
+    borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1
+};
+const gridStyle = { color: 'rgba(255,255,255,0.04)', drawBorder: false };
+const scaleX = { grid: { display: false }, ticks: { font: { size: 11 } } };
+const scaleY = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: false };
+const scaleYZero = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: true };
+
+const doughnutLabelOpts = {
+    display: true,
+    color: '#e8edf5',
+    font: { size: 11, weight: '600' },
+    formatter: (v) => v > 5 ? v.toFixed(1) + '%' : ''
+};
+
+const years = ['2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+
+// General CPI (Combined)
+const cpiGeneral = [113.6, 119.5, 126.3, 130.3, 136.9, 139.6, 150.2, 156.3, 165.7, 176.5, 185.5, 193.4];
+// General CPI (Rural)
+const cpiRural = [114.2, 120.3, 128.1, 132.4, 139.3, 141.0, 151.9, 156.8, 166.4, 177.8, 187.3, 195.9];
+// General CPI (Urban)
+const cpiUrban = [112.9, 118.5, 124.2, 127.8, 134.1, 138.0, 148.2, 155.8, 165.0, 174.9, 183.5, 190.6];
+
+// Group indices (Combined)
+const cpiFoodBev = [115.8, 123.1, 131.3, 133.1, 139.2, 137.4, 153.5, 157.6, 166.4, 176.7, 190.1, 200.9];
+const cpiPanTobacco = [114.5, 124.0, 135.2, 143.8, 154.7, 163.2, 169.2, 187.6, 192.2, 198.2, 204.7, 209.4];
+const cpiClothing = [115.4, 122.5, 129.5, 135.6, 142.3, 146.4, 149.2, 154.9, 168.5, 183.8, 190.0, 195.1];
+const cpiHousing = [111.6, 117.3, 123.4, 129.6, 140.4, null, 153.9, 158.9, 164.5, 172.1, 177.6, 182.6];
+const cpiFuel = [112.2, 116.5, 122.7, 126.8, 136.6, 139.5, 144.6, 150.2, 164.2, 182.0, 180.9, 178.2];
+const cpiMisc = [110.6, 114.0, 118.5, 124.4, 129.1, 136.9, 143.4, 152.7, 162.7, 172.8, 179.4, 187.2];
+const cpiCFPI = [115.6, 122.7, 131.1, 131.9, 138.1, 135.0, 153.4, 156.4, 164.9, 174.8, 189.3, 200.6];
+
+// Inflation rates (Combined)
+const inflGeneral = [8.60, 5.19, 5.69, 3.17, 5.07, 1.97, 7.59, 4.06, 6.01, 6.52, 5.10, 4.26];
+const inflRural = [8.66, 5.34, 6.48, 3.36, 5.21, 1.22, 7.73, 3.23, 6.12, 6.85, 5.34, 4.59];
+const inflUrban = [8.56, 4.96, 4.81, 2.90, 4.93, 2.91, 7.39, 5.13, 5.91, 6.00, 4.92, 3.87];
+
+const inflFuel = [6.35, 3.83, 5.32, 3.34, 7.73, 2.12, 3.66, 3.87, 9.32, 10.84, -0.60, -1.49];
+const inflHousing = [11.27, 5.11, 5.20, 5.02, 8.33, 5.20, 4.20, 3.25, 3.52, 4.62, 3.20, 2.82];
+
+// Food subgroup indices Jan 2025
+const foodSubLabels = ['Spices','Meat & Fish','Vegetables','Pulses','Egg','Prep. Meals','Food & Bev','Cereals','Fruits','Milk','Oils & Fats','Non-alc. Bev','Sugar'];
+const foodSubValues = [225.8, 224.4, 217.8, 209.5, 207.9, 206.9, 200.9, 199.1, 192.8, 187.9, 184.1, 183.1, 130.5];
+
+// State-wise CPI Jan 2025 (top 20 sorted by index)
+const stateNames = ['Manipur','Tripura','J&K','Kerala','Telangana','Tamil Nadu','Puducherry','Karnataka','Andhra Pradesh','Assam','Odisha','W. Bengal','Rural India','Daman & Diu','All India','M.P.','U.P.','Bihar','Haryana','Nagaland'];
+const stateValues = [220.3, 208.2, 202.3, 203.6, 202.3, 201.8, 201.3, 200.6, 199.2, 197.4, 197.3, 195.9, 195.9, 195.1, 193.4, 193.6, 193.6, 191.1, 191.5, 195.1];
+
+// Misc subgroup indices for 2025
+const miscLabels = ['Personal Care','Health','Education','Misc Overall','Household Goods','Recreation','Transport & Comm'];
+const miscValues2025 = [209.2, 198.8, 189.9, 187.2, 183.3, 179.1, 171.4];
+const miscInflation2025 = [10.63, 3.97, 3.83, 4.35, 2.86, 2.69, 2.76];
+
+// Misc subgroup time series
+const miscHealth = [110.3, 115.5, 122.0, 127.1, 133.3, 145.1, 151.2, 160.4, 171.4, 182.3, 191.2, 198.8];
+const miscEducation = [111.6, 119.7, 126.3, 133.3, 139.0, 150.2, 156.1, 159.4, 164.7, 174.3, 182.9, 189.9];
+const miscTransport = [110.7, 109.4, 111.1, 117.0, 119.3, 123.3, 130.9, 143.2, 156.5, 163.6, 166.8, 171.4];
+const miscPersonal = [108.2, 110.7, 114.5, 121.7, 127.3, 132.8, 142.3, 157.5, 163.0, 178.6, 189.1, 209.2];
+
+// ========== CHART 1: CPI General Trend (Rural/Urban/Combined) ==========
+new Chart(document.getElementById('chartCpiTrend'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Rural', data: cpiRural, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Combined', data: cpiGeneral, borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Urban', data: cpiUrban, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2012=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 2: Headline Inflation Rate ==========
+new Chart(document.getElementById('chartInflation'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'YoY Inflation %',
+            data: inflGeneral,
+            backgroundColor: inflGeneral.map(v => v > 6 ? 'rgba(224,82,82,0.7)' : v > 4 ? 'rgba(244,63,94,0.6)' : 'rgba(52,211,153,0.6)'),
+            borderColor: inflGeneral.map(v => v > 6 ? '#e05252' : v > 4 ? '#f43f5e' : '#34d399'),
+            borderWidth: 1, borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleYZero, title: { display: true, text: 'YoY Inflation (%)', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' },
+            annotation: {
+                annotations: {
+                    line1: { type: 'line', yMin: 4, yMax: 4, borderColor: 'rgba(251,191,36,0.5)', borderWidth: 1, borderDash: [5, 5], label: { display: true, content: 'RBI Target 4%', position: 'end', backgroundColor: 'transparent', color: '#fbbf24', font: { size: 10 } } },
+                    line2: { type: 'line', yMin: 6, yMax: 6, borderColor: 'rgba(224,82,82,0.4)', borderWidth: 1, borderDash: [5, 5] }
+                }
+            }
+        }
+    }
+});
+
+// ========== CHART 3: Food Trend ==========
+new Chart(document.getElementById('chartFoodTrend'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Food & Beverages', data: cpiFoodBev, borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Consumer Food Price Index', data: cpiCFPI, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.06)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5, borderDash: [5,3] }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2012=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 4: Food Subgroup Bar ==========
+new Chart(document.getElementById('chartFoodSubgroups'), {
+    type: 'bar',
+    data: {
+        labels: foodSubLabels,
+        datasets: [{
+            data: foodSubValues,
+            backgroundColor: ['#e05252','#fb923c','#34d399','#60a5fa','#a78bfa','#fbbf24','#f43f5e','#38bdf8','#e879f9','#8b7ec8','#5b7bb5','#2dd4a8','#6b7a90'],
+            borderRadius: 4, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.6,
+        scales: {
+            x: { ...scaleYZero, min: 100, title: { display: true, text: 'Index (2012=100)', color: '#6b7a90', font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) }
+        }
+    }
+});
+
+// ========== CHART 5: All Groups Trend ==========
+new Chart(document.getElementById('chartGroupTrend'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Pan & Tobacco', data: cpiPanTobacco, borderColor: '#a78bfa', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Food & Bev', data: cpiFoodBev, borderColor: '#f43f5e', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Clothing', data: cpiClothing, borderColor: '#fbbf24', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'General', data: cpiGeneral, borderColor: '#e8edf5', tension: 0.35, pointRadius: 3, borderWidth: 2.5, borderDash: [5,3] },
+            { label: 'Misc', data: cpiMisc, borderColor: '#60a5fa', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Fuel & Light', data: cpiFuel, borderColor: '#fb923c', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Housing', data: cpiHousing, borderColor: '#34d399', tension: 0.35, pointRadius: 3, borderWidth: 2, spanGaps: true }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2012=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 6: Group Inflation Jan 2025 ==========
+new Chart(document.getElementById('chartGroupInflation'), {
+    type: 'bar',
+    data: {
+        labels: ['Food & Bev','Misc','General','Housing','Clothing','Pan/Tobacco','Fuel'],
+        datasets: [{
+            data: [5.68, 4.35, 4.26, 2.82, 2.68, 2.30, -1.49],
+            backgroundColor: [5.68, 4.35, 4.26, 2.82, 2.68, 2.30, -1.49].map(v => v > 4 ? 'rgba(244,63,94,0.6)' : v < 0 ? 'rgba(96,165,250,0.6)' : 'rgba(52,211,153,0.6)'),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.2,
+        scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { ...scaleYZero, title: { display: true, text: 'YoY %', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' }
+        }
+    }
+});
+
+// ========== CHART 7: Cumulative Rise ==========
+new Chart(document.getElementById('chartGroupCumulative'), {
+    type: 'bar',
+    data: {
+        labels: ['Pan & Tobacco','Food & Bev','Clothing','General','Fuel','Housing','Misc'],
+        datasets: [{
+            data: [
+                ((209.4 - 114.5) / 114.5 * 100).toFixed(1),
+                ((200.9 - 115.8) / 115.8 * 100).toFixed(1),
+                ((195.1 - 115.4) / 115.4 * 100).toFixed(1),
+                ((193.4 - 113.6) / 113.6 * 100).toFixed(1),
+                ((178.2 - 112.2) / 112.2 * 100).toFixed(1),
+                ((182.6 - 111.6) / 111.6 * 100).toFixed(1),
+                ((187.2 - 110.6) / 110.6 * 100).toFixed(1)
+            ],
+            backgroundColor: ['#a78bfa','#f43f5e','#fbbf24','#e8edf5','#fb923c','#34d399','#60a5fa'].map(c => c + '99'),
+            borderColor: ['#a78bfa','#f43f5e','#fbbf24','#e8edf5','#fb923c','#34d399','#60a5fa'],
+            borderWidth: 1, borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.2,
+        scales: { x: { ...scaleYZero, title: { display: true, text: '% rise since Jan 2014', color: '#6b7a90', font: { size: 11 } } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => parseFloat(v).toFixed(0) + '%' }
+        }
+    }
+});
+
+// ========== CHART 8: Fuel & Light ==========
+new Chart(document.getElementById('chartFuel'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            { type: 'line', label: 'Fuel Index', data: cpiFuel, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2.5, yAxisID: 'y' },
+            { label: 'Fuel Inflation %', data: inflFuel, backgroundColor: inflFuel.map(v => v < 0 ? 'rgba(96,165,250,0.5)' : 'rgba(251,146,60,0.4)'), borderRadius: 4, yAxisID: 'y1' }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { position: 'left', ...scaleY, title: { display: true, text: 'Index', color: '#6b7a90', font: { size: 11 } } },
+            y1: { position: 'right', grid: { display: false }, ticks: { font: { size: 11 }, callback: v => v + '%' }, title: { display: true, text: 'YoY %', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 9: Housing ==========
+new Chart(document.getElementById('chartHousing'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            { type: 'line', label: 'Housing Index', data: cpiHousing, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2.5, yAxisID: 'y', spanGaps: true },
+            { label: 'Housing Inflation %', data: inflHousing, backgroundColor: 'rgba(52,211,153,0.35)', borderRadius: 4, yAxisID: 'y1' }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { position: 'left', ...scaleY, title: { display: true, text: 'Index', color: '#6b7a90', font: { size: 11 } } },
+            y1: { position: 'right', grid: { display: false }, ticks: { font: { size: 11 }, callback: v => v + '%' }, title: { display: true, text: 'YoY %', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 10: Rural vs Urban Inflation ==========
+new Chart(document.getElementById('chartRuralUrban'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Rural', data: inflRural, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Urban', data: inflUrban, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Combined', data: inflGeneral, borderColor: '#f43f5e', tension: 0.35, pointRadius: 3, borderWidth: 2, borderDash: [5,3] }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleYZero, title: { display: true, text: 'YoY Inflation (%)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 11: Rural vs Urban Index ==========
+new Chart(document.getElementById('chartRuralUrbanIndex'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Rural CPI', data: cpiRural, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2.5 },
+            { label: 'Urban CPI', data: cpiUrban, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2012=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 12: State-wise CPI ==========
+new Chart(document.getElementById('chartStates'), {
+    type: 'bar',
+    data: {
+        labels: stateNames,
+        datasets: [{
+            data: stateValues,
+            backgroundColor: stateValues.map(v => v >= 200 ? 'rgba(244,63,94,0.6)' : v >= 193 ? 'rgba(251,191,36,0.5)' : 'rgba(96,165,250,0.5)'),
+            borderRadius: 4, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.3,
+        scales: {
+            x: { ...scaleYZero, min: 160, title: { display: true, text: 'CPI Index (2012=100)', color: '#6b7a90', font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 9, weight: '600' }, formatter: v => v.toFixed(1) }
+        }
+    }
+});
+
+// ========== CHART 13: Misc Subgroup Trend ==========
+new Chart(document.getElementById('chartMisc'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Personal Care', data: miscPersonal, borderColor: '#e879f9', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Health', data: miscHealth, borderColor: '#f43f5e', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Education', data: miscEducation, borderColor: '#fbbf24', tension: 0.35, pointRadius: 3, borderWidth: 2 },
+            { label: 'Transport & Comm', data: miscTransport, borderColor: '#60a5fa', tension: 0.35, pointRadius: 3, borderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'Index (2012=100)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 14: Misc Inflation Jan 2025 ==========
+new Chart(document.getElementById('chartMiscInflation'), {
+    type: 'bar',
+    data: {
+        labels: miscLabels,
+        datasets: [{
+            data: miscInflation2025,
+            backgroundColor: miscInflation2025.map(v => v > 5 ? 'rgba(244,63,94,0.6)' : v > 3 ? 'rgba(251,191,36,0.5)' : 'rgba(96,165,250,0.5)'),
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.6,
+        scales: {
+            x: { ...scaleYZero, title: { display: true, text: 'YoY Inflation (%)', color: '#6b7a90', font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' }
+        }
+    }
+});
+
+// ========== SCROLL ANIMATIONS & NAV ==========
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backBtn = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section, .social-section');
+const navLinksEl = document.getElementById('navLinks');
+const navLinks = navLinksEl ? navLinksEl.querySelectorAll('a') : [];
+
+window.addEventListener('scroll', () => {
+    const st = window.scrollY;
+    nav.classList.toggle('scrolled', st > 40);
+    backBtn.classList.toggle('visible', st > 600);
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    navProgress.style.width = h > 0 ? (st / h * 100) + '%' : '0%';
+
+    let current = '';
+    sections.forEach(s => {
+        if (s.offsetTop - 120 <= st) current = s.id;
+    });
+    navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+}, { passive: true });
+</script>
+</body>
+</html>

@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Energy Statistics Report | MoSPI Data 2012-2024</title>
+    <meta name="description" content="Interactive report on India's energy statistics from MoSPI — covering supply, production, imports, consumption, renewables, and transport energy use.">
+    <meta property="og:title" content="India Energy Statistics Report 2012-2024">
+    <meta property="og:description" content="India's energy supply grew 52% in 12 years. Solar & Wind surged 298%. Coal still dominates at 59%. Explore the full interactive report.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --amber: #e09422;
+            --amber-light: #f5b731;
+            --amber-glow: rgba(224, 148, 34, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-coal: #d97706;
+            --chart-oil: #dc4e4e;
+            --chart-gas: #7c6bb5;
+            --chart-nuclear: #36a8b8;
+            --chart-hydro: #4b8fd4;
+            --chart-solar: #2ebd80;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+        /* ============ STICKY NAV ============ */
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(8, 13, 24, 0.85);
+            backdrop-filter: blur(16px) saturate(1.4);
+            -webkit-backdrop-filter: blur(16px) saturate(1.4);
+            border-bottom: 1px solid var(--border);
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+            transition: box-shadow 0.3s;
+        }
+        .site-nav.scrolled {
+            box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+        }
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .nav-brand {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--amber-light);
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+        }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 4px 0;
+        }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            transition: color 0.2s, background 0.2s;
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text);
+            background: rgba(255,255,255,0.06);
+        }
+        .nav-links a.active { color: var(--amber-light); }
+
+        .nav-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--amber), var(--teal));
+            width: 0%;
+            transition: width 0.15s;
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            position: relative;
+            padding: 100px 24px 70px;
+            overflow: hidden;
+            background: var(--bg-deep);
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 40%, rgba(224, 148, 34, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 60%, rgba(45, 212, 168, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1180px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 40px;
+            align-items: center;
+        }
+        .hero-text h1 {
+            font-family: var(--font-display);
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        .hero-text h1 span {
+            display: block;
+            color: var(--amber-light);
+            font-size: 0.5em;
+            font-weight: 400;
+            font-style: italic;
+            margin-top: 4px;
+            letter-spacing: 0;
+        }
+        .hero-text p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 540px;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+        .hero-text .source {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+        .hero-text .source a { color: var(--amber); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+
+        .hero-stat {
+            text-align: right;
+            padding-right: 20px;
+        }
+        .hero-stat .big-number {
+            font-family: var(--font-display);
+            font-size: 6rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--amber);
+            opacity: 0.18;
+            letter-spacing: -0.04em;
+        }
+        .hero-stat .big-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+
+        /* ============ KPI HIGHLIGHTS ============ */
+        .highlights {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 48px 0 32px;
+        }
+        .highlight-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--border);
+            border-radius: 10px;
+            padding: 22px 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s;
+        }
+        .highlight-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+        .highlight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--amber); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--amber-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--teal); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, var(--teal-glow), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--slate-blue); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(91,123,181,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--chart-solar); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, rgba(46,189,128,0.12), transparent 70%); }
+
+        .highlight-card .number {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+            letter-spacing: -0.02em;
+        }
+        .highlight-card .label {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .highlight-card .sublabel {
+            color: var(--muted);
+            font-size: 0.72rem;
+            margin-top: 6px;
+        }
+
+        /* ============ SECTIONS ============ */
+        .report-section {
+            padding: 56px 0 48px;
+            position: relative;
+        }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .section-num {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--amber);
+            opacity: 0.2;
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .section-desc {
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+            max-width: 720px;
+            line-height: 1.7;
+        }
+
+        .section-divider {
+            width: 48px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--amber), transparent);
+            margin: 12px 0 20px;
+        }
+
+        /* ============ CHART CARDS ============ */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 20px;
+        }
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 24px;
+            position: relative;
+        }
+        .chart-card h3 {
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        /* ============ INSIGHT BOX ============ */
+        .insight {
+            background: rgba(224, 148, 34, 0.06);
+            border-left: 3px solid var(--amber);
+            padding: 14px 18px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+        .insight strong { color: var(--text); font-weight: 600; }
+
+        /* ============ SOCIAL CARDS ============ */
+        .social-section { padding: 56px 0; }
+        .social-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 28px;
+        }
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .social-card {
+            background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95));
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 28px 24px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s;
+        }
+        .social-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .social-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 3px;
+        }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--amber), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--teal), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--chart-coal), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--slate-blue), transparent 80%); }
+
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        .social-card .desc {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+        .social-card .hashtag {
+            margin-top: 14px;
+            color: var(--amber);
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        /* ============ DATA TABLE ============ */
+        .data-table-wrap {
+            overflow-x: auto;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--card);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            font-variant-numeric: tabular-nums;
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        th {
+            padding: 12px 16px;
+            text-align: right;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            background: var(--bg-alt);
+            border-bottom: 1px solid var(--border-light);
+        }
+        td {
+            padding: 10px 16px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(224, 148, 34, 0.04); }
+        tr:last-child td { border-bottom: none; }
+
+        /* ============ FOOTER ============ */
+        footer {
+            text-align: center;
+            padding: 48px 24px;
+            background: var(--bg-deep);
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+        footer a { color: var(--amber); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+
+        /* ============ BACK TO TOP ============ */
+        .back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s, background 0.2s;
+            z-index: 90;
+            text-decoration: none;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .back-to-top:hover {
+            background: var(--card-hover);
+            color: var(--text);
+        }
+
+        /* ============ REVEAL ANIMATIONS ============ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-stagger > .highlight-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1);
+        }
+        .reveal-stagger.visible > .highlight-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .highlights { grid-template-columns: repeat(2, 1fr); }
+            .chart-grid { grid-template-columns: 1fr; }
+            .hero-stat { display: none; }
+            .hero-text h1 { font-size: 2.4rem; }
+        }
+        @media (max-width: 700px) {
+            .hero { padding: 80px 20px 50px; }
+            .hero-text h1 { font-size: 1.8rem; }
+            .hero-text p { font-size: 0.95rem; }
+            .highlights { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .highlight-card { padding: 16px 14px; }
+            .highlight-card .number { font-size: 1.5rem; }
+            .highlight-card .label { font-size: 0.75rem; }
+            .section-header h2 { font-size: 1.3rem; }
+            .section-num { font-size: 2rem; }
+            .social-grid { grid-template-columns: 1fr; }
+            .nav-brand { display: none; }
+            .nav-links a { font-size: 0.65rem; padding: 4px 7px; }
+            .chart-card { padding: 20px 16px; }
+        }
+        @media (max-width: 480px) {
+            .highlights { grid-template-columns: 1fr; }
+            .nav-links { gap: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sticky Navigation -->
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India Energy</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#social">Highlights</a>
+            <a href="#supply">Supply</a>
+            <a href="#mix">Energy Mix</a>
+            <a href="#imports">Imports</a>
+            <a href="#dependency">Dependency</a>
+            <a href="#renewables">Renewables</a>
+            <a href="#sectors">Sectors</a>
+            <a href="#transport">Transport</a>
+            <a href="#fuels">Fuels</a>
+            <a href="#oil-products">Oil Products</a>
+            <a href="#kerosene">Kerosene</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India Energy<br>Statistics <span>A twelve-year portrait, 2012 &ndash; 2024</span></h1>
+            <p>How the world's most populous nation powers its economy &mdash; from coal's enduring dominance to the quiet rise of solar, the vanishing of kerosene, and an 88% dependence on imported crude oil.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation</a> &middot; Energy Balance Dataset via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">903K</div>
+            <div class="big-label">KToE Total Supply &middot; 2023-24</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <!-- KPI Highlights -->
+    <div class="container">
+        <div class="highlights reveal-stagger" id="highlightsGrid">
+            <div class="highlight-card">
+                <div class="number" style="color: var(--amber-light)">903,158</div>
+                <div class="label">Total Primary Energy Supply (KToE)</div>
+                <div class="sublabel">2023-24 &mdash; All-time high</div>
+            </div>
+            <div class="highlight-card">
+                <div class="number" style="color: var(--teal)">298%</div>
+                <div class="label">Solar, Wind & Others Growth</div>
+                <div class="sublabel">5,091 &rarr; 20,289 KToE (2012&ndash;2024)</div>
+            </div>
+            <div class="highlight-card">
+                <div class="number" style="color: var(--crimson)">88%</div>
+                <div class="label">Crude Oil Import Dependency</div>
+                <div class="sublabel">239,415 of 269,417 KToE imported</div>
+            </div>
+            <div class="highlight-card">
+                <div class="number" style="color: var(--lavender)">59.1%</div>
+                <div class="label">Coal's Share of Energy Supply</div>
+                <div class="sublabel">534,098 KToE in 2023-24</div>
+            </div>
+            <div class="highlight-card">
+                <div class="number" style="color: var(--slate-blue)">52%</div>
+                <div class="label">Energy Supply Growth (12 Years)</div>
+                <div class="sublabel">593,601 &rarr; 903,158 KToE</div>
+            </div>
+            <div class="highlight-card">
+                <div class="number" style="color: var(--chart-solar)">76%</div>
+                <div class="label">Road Transport's Share</div>
+                <div class="sublabel">54,941 of 71,945 KToE in transport</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share-Worthy Facts (moved to top) -->
+    <section class="report-section social-section" id="social">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <h2>Share-Worthy Facts</h2>
+                </div>
+                <div class="section-divider"></div>
+            </div>
+            <div class="social-grid reveal">
+                <div class="social-card">
+                    <div class="emoji">&#9889;</div>
+                    <div class="stat">903,158 KToE</div>
+                    <div class="desc">India's total primary energy supply in 2023-24 hit an all-time record &mdash; enough to power the world's 5th largest economy and 1.4 billion people.</div>
+                    <div class="hashtag">#IndiaEnergy #MoSPI #EnergyStatistics</div>
+                </div>
+                <div class="social-card">
+                    <div class="emoji">&#9728;&#65039;</div>
+                    <div class="stat">4x Growth in Solar & Wind</div>
+                    <div class="desc">India's solar, wind & other renewable energy supply quadrupled from 5,091 to 20,289 KToE between 2012-13 and 2023-24. The green revolution is real.</div>
+                    <div class="hashtag">#RenewableEnergy #SolarIndia #CleanEnergy</div>
+                </div>
+                <div class="social-card">
+                    <div class="emoji">&#128663;</div>
+                    <div class="stat">Diesel is King</div>
+                    <div class="desc">Diesel alone (93,064 KToE) consumes more energy than the ENTIRE transport sector combined (71,945 KToE). Most diesel powers industry, agriculture, and freight.</div>
+                    <div class="hashtag">#DieselEconomy #IndianIndustry</div>
+                </div>
+                <div class="social-card">
+                    <div class="emoji">&#129684;</div>
+                    <div class="stat">Kerosene Down 93%</div>
+                    <div class="desc">From 7,035 KToE to just 501 KToE in 9 years. India's kerosene-to-LPG transition is one of the world's most successful clean cooking fuel programs.</div>
+                    <div class="hashtag">#Ujjwala #CleanCooking #IndiaTransition</div>
+                </div>
+                <div class="social-card">
+                    <div class="emoji">&#9992;&#65039;</div>
+                    <div class="stat">Aviation Bounced Back 123%</div>
+                    <div class="desc">Aviation fuel consumption crashed 54% during COVID but roared back 123% to 8,786 KToE by 2023-24 &mdash; India is now the world's 3rd largest aviation market.</div>
+                    <div class="hashtag">#IndianAviation #Travel #Recovery</div>
+                </div>
+                <div class="social-card">
+                    <div class="emoji">&#128308;</div>
+                    <div class="stat">88% Oil Import Dependency</div>
+                    <div class="desc">India imports 88% of its crude oil. Domestic production has declined 22% since 2012-13 even as demand surged.</div>
+                    <div class="hashtag">#EnergyDependency #CrudeOil #IndiaImports</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 1: Total Primary Energy Supply -->
+    <section class="report-section" id="supply">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">01</span>
+                    <h2>Total Primary Energy Supply</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">India's total primary energy supply has grown from ~594,000 KToE in 2012-13 to over 903,000 KToE in 2023-24 &mdash; a 52% increase in twelve years, powering the world's fastest-growing major economy.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card full-width">
+                    <h3>Total Primary Energy Supply Trend (KToE)</h3>
+                    <canvas id="tpesChart"></canvas>
+                    <div class="insight"><strong>Key Insight:</strong> COVID-19 caused the only dip in 2020-21 (710,062 KToE, a 6.8% drop from 2019-20), but recovery was swift with a 27% surge by 2023-24.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Energy Mix -->
+    <section class="report-section" id="mix">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">02</span>
+                    <h2>Energy Mix Breakdown</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">How India's primary energy supply is composed across different commodity types &mdash; comparing 2012-13 with 2023-24.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card">
+                    <h3>Energy Supply Mix 2012-13</h3>
+                    <canvas id="mix2012Chart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Energy Supply Mix 2023-24</h3>
+                    <canvas id="mix2024Chart"></canvas>
+                </div>
+            </div>
+            <div class="insight reveal" style="margin-top: 24px;">
+                <strong>Shift in 12 Years:</strong> Coal rose from 56% to 59%, Solar/Wind/Others from 0.9% to 2.2%, Nuclear held at 1.4%, while Natural Gas dropped from 9.0% to 7.0%. Crude Oil's share fell from 38.3% to 29.8%.
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Production vs Imports -->
+    <section class="report-section" id="imports">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">03</span>
+                    <h2>Domestic Production vs Imports</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">India produces about 58% of its energy domestically but relies heavily on imports for crude oil and increasingly for coal.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card full-width">
+                    <h3>Production vs Imports (KToE)</h3>
+                    <canvas id="prodImportChart"></canvas>
+                    <div class="insight"><strong>Key Insight:</strong> Imports grew 55% (296,176 &rarr; 459,250 KToE) while production grew 48% (353,332 &rarr; 521,633 KToE). Imports now equal 88% of domestic production, up from 84%.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Import Dependency -->
+    <section class="report-section" id="dependency">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">04</span>
+                    <h2>Import Dependency Deep Dive</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">How much of each major fuel does India import?</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card">
+                    <h3>Coal: Domestic Production vs Imports</h3>
+                    <canvas id="coalImportChart"></canvas>
+                    <div class="insight"><strong>Coal imports nearly doubled</strong> from 74,275 KToE (2012-13) to 141,639 KToE (2023-24) &mdash; a 91% increase. Import share rose from 23% to 26%.</div>
+                </div>
+                <div class="chart-card">
+                    <h3>Crude Oil: Domestic Production vs Imports</h3>
+                    <canvas id="oilImportChart"></canvas>
+                    <div class="insight"><strong>India produces just 11%</strong> of its crude oil needs domestically (30,002 KToE). Crude oil imports hit 239,415 KToE, up 27% from 2012-13.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Renewable Energy -->
+    <section class="report-section" id="renewables">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">05</span>
+                    <h2>Renewable Energy Growth</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">Solar, Wind, Hydro, and Nuclear energy trends over the decade.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card full-width">
+                    <h3>Clean Energy Sources (KToE)</h3>
+                    <canvas id="renewableChart"></canvas>
+                    <div class="insight"><strong>Solar, Wind & Others quadrupled</strong> from 5,091 to 20,289 KToE. Combined with Hydro (11,559) and Nuclear (12,493), clean sources contributed 44,340 KToE in 2023-24 &mdash; about 4.9% of total supply, up from 3.9% in 2012-13.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Consumption by Sector -->
+    <section class="report-section" id="sectors">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">06</span>
+                    <h2>Energy Consumption by Sector</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">Where does India's energy go? Industry is the dominant consumer, followed by residential and other uses.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card">
+                    <h3>Sector-wise Final Consumption 2023-24</h3>
+                    <canvas id="sectorPieChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Sector Consumption Trend (KToE)</h3>
+                    <canvas id="sectorTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 7: Transport -->
+    <section class="report-section" id="transport">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">07</span>
+                    <h2>Transport Energy Breakdown</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">Road transport dominates India's transport energy use, consuming more than all other modes combined.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card">
+                    <h3>Transport Sub-Sector Split 2023-24</h3>
+                    <canvas id="transportPieChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Aviation Energy Consumption Trend</h3>
+                    <canvas id="aviationChart"></canvas>
+                    <div class="insight"><strong>Aviation recovered strongly</strong> from the COVID-19 crash (3,941 KToE in 2020-21) to 8,786 KToE in 2023-24, surpassing pre-COVID levels. India is now the world's 3rd largest aviation market.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 8: Fuels -->
+    <section class="report-section" id="fuels">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">08</span>
+                    <h2>What Fuels Does India Consume?</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">Final energy consumption broken down by commodity type for 2023-24.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card full-width">
+                    <h3>Final Consumption by Commodity 2023-24 (KToE)</h3>
+                    <canvas id="fuelConsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 9: Oil Products -->
+    <section class="report-section" id="oil-products">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">09</span>
+                    <h2>Oil Products: The Diesel Nation</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">A breakdown of India's petroleum product consumption reveals Diesel's overwhelming dominance.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card full-width">
+                    <h3>Oil Product Consumption 2023-24 (KToE)</h3>
+                    <canvas id="oilProductsChart"></canvas>
+                    <div class="insight"><strong>Diesel accounts for 39%</strong> of all oil product consumption (93,064 KToE). Petrol/Motor Spirit is the second largest at 39,826 KToE. LPG consumption has grown 51% in 8 years, reflecting the Ujjwala scheme's success in expanding clean cooking fuel access.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 10: Kerosene -->
+    <section class="report-section" id="kerosene">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">10</span>
+                    <h2>The Disappearing Kerosene</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">One of the most dramatic shifts in India's energy story.</p>
+            </div>
+            <div class="chart-grid reveal">
+                <div class="chart-card full-width">
+                    <h3>Kerosene vs LPG Consumption (KToE)</h3>
+                    <canvas id="keroLpgChart"></canvas>
+                    <div class="insight"><strong>Kerosene collapsed 93%</strong> from 7,035 KToE (2014-15) to 501 KToE (2023-24), while LPG surged 65% from 20,332 to 33,506 KToE. This substitution reflects one of India's most successful clean energy transitions &mdash; millions of households moved from kerosene lamps to LPG stoves.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Table -->
+    <section class="report-section" id="data-table">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-header">
+                    <span class="section-num">&#8718;</span>
+                    <h2>Reference Data Table</h2>
+                </div>
+                <div class="section-divider"></div>
+                <p class="section-desc">Total primary energy supply by source (KToE) &mdash; all years.</p>
+            </div>
+            <div class="data-table-wrap reveal">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Coal</th>
+                            <th>Crude Oil</th>
+                            <th>Natural Gas</th>
+                            <th>Nuclear</th>
+                            <th>Hydro</th>
+                            <th>Solar/Wind</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+
+</main>
+
+<footer>
+    <p>Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation (MoSPI)</a> &middot; Energy Balance Dataset</p>
+    <p>Built with data from the eSankhyiki API &middot; All values in Kilo Tonnes of Oil Equivalent (KToE)</p>
+    <p style="opacity: 0.5;">Report generated February 2026</p>
+    <div class="footer-dashboards">
+        <a href="../india-gdp-report/">GDP</a> &middot;
+        <a href="../india-inflation-report/">CPI Inflation</a> &middot;
+        <a href="../india-employment-report/">Employment</a> &middot;
+        <a href="../india-industrial-report/">IIP</a> &middot;
+        <a href="../india-factory-report/">Factory Survey</a> &middot;
+        <a href="../india-wholesale-prices-report/">WPI</a> &middot;
+        <strong>Energy</strong>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop" aria-label="Back to top">&uarr;</a>
+
+<script>
+// ============ CHART DEFAULTS ============
+Chart.register(ChartDataLabels);
+Chart.defaults.color = '#6b7a90';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
+Chart.defaults.font.family = "'DM Sans', -apple-system, sans-serif";
+Chart.defaults.font.size = 12;
+// Disable datalabels globally — enable per-chart for doughnuts only
+Chart.defaults.plugins.datalabels = { display: false };
+
+const doughnutLabelOpts = {
+    display: function(ctx) {
+        const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+        const pct = (ctx.dataset.data[ctx.dataIndex] / total) * 100;
+        return pct >= 3; // hide labels < 3% to avoid clutter
+    },
+    color: '#e8edf5',
+    font: { size: 11, weight: '600', family: "'DM Sans', sans-serif" },
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowBlur: 4,
+    formatter: function(value, ctx) {
+        const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+        return ((value / total) * 100).toFixed(1) + '%';
+    },
+    anchor: 'center',
+    align: 'center',
+    offset: 0
+};
+
+const tooltipStyle = {
+    backgroundColor: 'rgba(20,30,48,0.95)',
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    titleColor: '#e8edf5',
+    bodyColor: '#a0aec0',
+    cornerRadius: 8,
+    padding: 12,
+    titleFont: { weight: '600' },
+    displayColors: true,
+    boxPadding: 4
+};
+
+const years = ['2012-13','2013-14','2014-15','2015-16','2016-17','2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24'];
+
+// ============ DATA ============
+const tpesData = {
+    coal:       [332660, 343187.75, 380910.65, 387761.43, 383119.37, 407287.15, 436430.12, 425175.3, 399768.28, 444701.06, 478853.43, 534098.32],
+    crudeOil:   [227553.15, 232020.71, 231887.04, 245067.12, 255438.78, 261751.11, 266435.68, 264824.06, 231947.44, 247397.38, 267640.24, 269417.07],
+    naturalGas: [53622.55, 48943.49, 48075.41, 49338.85, 52197.96, 55272.64, 56675.95, 59855.97, 57075.63, 60172.12, 56197.59, 63115.03],
+    nuclear:    [8565.11, 8919.97, 9408.28, 9750.22, 9881.11, 9993.23, 9854.19, 12111, 11213.64, 12277.69, 11951.68, 12492.78],
+    hydro:      [9790.11, 11607.99, 11127.4, 10447.86, 10536.82, 10856.23, 11624.07, 13426.08, 12954.92, 13070.62, 13965.49, 11558.82],
+    solarWind:  [5091.14, 5798.32, 6554.89, 5833.12, 7208.97, 8958.42, 11217.24, 12439.68, 13278.87, 15284.37, 18252.85, 20288.67],
+    total:      [593601.33, 597563.9, 642690.17, 673616.96, 684455.81, 718288.33, 761499.34, 762113.07, 710062.28, 778306.99, 837760.74, 903157.89]
+};
+
+const production = [353331.52, 354446.1, 370636.72, 379050.33, 384064.19, 386280.49, 408621.37, 408190.64, 392908.94, 425957.27, 475693.74, 521632.82];
+const imports =    [296175.73, 310143.82, 342222.02, 362858.62, 377568.44, 395212.03, 415111.31, 437708.33, 390614.07, 402343.42, 433858.34, 459250.41];
+
+const coalProd =   [253772.52, 256930.84, 274301.05, 285600.07, 290295.92, 289970.6, 310731.41, 308651.92, 297774.74, 312680.97, 359797.83, 403799.46];
+const coalImport = [74274.78, 83249.7, 110186.74, 107058.46, 101177.63, 110333.76, 123696.31, 130996.86, 115541.29, 115989.25, 126342.73, 141638.82];
+
+const oilProd =   [38692.83, 38619.7, 38285.05, 37754.39, 36800.94, 36469.31, 34955.64, 32876.92, 31164.89, 30343.85, 29820.95, 30002.27];
+const oilImport = [188860.32, 193401.01, 193601.99, 207312.74, 218637.84, 225281.81, 231480.04, 231947.15, 200782.55, 217053.53, 237819.29, 239414.8];
+
+const sectorYears = ['2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24'];
+const sectorIndustry =  [256524.18, 284350.57, 276454.56, 264137.17, 255964.21, 275534.63, 311822.03];
+const sectorTransport = [52973.1, 57064.94, 59946.94, 48536.76, 57509.81, 64992.17, 71944.66];
+const sectorOthers =    [170946.07, 176641.58, 178407.83, 174143.29, 181727.87, 199197.58, 206814.98];
+
+const transportBreakdown = {
+    labels: ['Road', 'Aviation', 'Rail', 'Navigation', 'Pipeline'],
+    values: [54940.81, 8786.42, 4347.05, 2090.91, 1779.47]
+};
+
+const aviationYears = ['2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24'];
+const aviationData = [8133.76, 8844.94, 8524.14, 3941.46, 5337.53, 7860.76, 8786.42];
+
+const keroData = [null, null, 7035.33, 6776.81, 5357.68, 3817.24, 3434.37, 2379.45, 1784.83, 1560.57, 511.61, 500.63];
+const lpgData =  [null, null, 20331.97, 22166.14, 24409.21, 26368.8, 28135.83, 29744.08, 31131.79, 31914.74, 32195.73, 33506.37];
+
+// ============ COLORS ============
+const C = {
+    coal: '#d97706', oil: '#dc4e4e', gas: '#7c6bb5', nuclear: '#36a8b8',
+    hydro: '#4b8fd4', solar: '#2ebd80', amber: '#e09422', teal: '#2dd4a8',
+    crimson: '#e05252', slate: '#5b7bb5', lavender: '#8b7ec8', muted: '#4a5568'
+};
+
+// ============ CHART 1: TPES Trend ============
+new Chart(document.getElementById('tpesChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Total Primary Energy Supply',
+            data: tpesData.total,
+            borderColor: C.amber,
+            backgroundColor: 'rgba(224, 148, 34, 0.08)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: C.amber,
+            pointBorderColor: 'transparent',
+            borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: { duration: 1200, easing: 'easeOutQuart' },
+        plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { beginAtZero: false, ticks: { callback: v => (v/1000).toFixed(0) + 'K' }, title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ============ CHART 2 & 3: Energy Mix ============
+const mixLabels = ['Coal', 'Crude Oil', 'Natural Gas', 'Nuclear', 'Hydro', 'Solar/Wind/Others'];
+const mixColors = [C.coal, C.oil, C.gas, C.nuclear, C.hydro, C.solar];
+
+function createMixChart(canvasId, dataArr) {
+    new Chart(document.getElementById(canvasId), {
+        type: 'doughnut',
+        data: {
+            labels: mixLabels,
+            datasets: [{
+                data: dataArr,
+                backgroundColor: mixColors,
+                borderColor: '#141e30',
+                borderWidth: 2,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '55%',
+            animation: { duration: 1000, easing: 'easeOutQuart' },
+            plugins: {
+                datalabels: doughnutLabelOpts,
+                legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true, pointStyleWidth: 10, font: { size: 11 } } },
+                tooltip: { ...tooltipStyle, callbacks: {
+                    label: ctx => {
+                        const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                        const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                        return `${ctx.label}: ${ctx.parsed.toLocaleString()} KToE (${pct}%)`;
+                    }
+                }}
+            }
+        }
+    });
+}
+createMixChart('mix2012Chart', [332660, 227553.15, 53622.55, 8565.11, 9790.11, 5091.14]);
+createMixChart('mix2024Chart', [534098.32, 269417.07, 63115.03, 12492.78, 11558.82, 20288.67]);
+
+// ============ CHART 4: Production vs Imports ============
+new Chart(document.getElementById('prodImportChart'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Domestic Production', data: production, backgroundColor: 'rgba(45, 212, 168, 0.55)', borderColor: C.teal, borderWidth: 1, borderRadius: 3, hoverBackgroundColor: 'rgba(45, 212, 168, 0.75)' },
+            { label: 'Imports', data: imports, backgroundColor: 'rgba(224, 82, 82, 0.55)', borderColor: C.crimson, borderWidth: 1, borderRadius: 3, hoverBackgroundColor: 'rgba(224, 82, 82, 0.75)' }
+        ]
+    },
+    options: {
+        responsive: true,
+        animation: { duration: 1000, easing: 'easeOutQuart' },
+        plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { ticks: { callback: v => (v/1000).toFixed(0) + 'K' }, title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+    }
+});
+
+// ============ CHART 5 & 6: Stacked Bar ============
+function createStackedBar(canvasId, prodData, importData) {
+    new Chart(document.getElementById(canvasId), {
+        type: 'bar',
+        data: {
+            labels: years,
+            datasets: [
+                { label: 'Domestic', data: prodData, backgroundColor: 'rgba(45, 212, 168, 0.55)', borderRadius: 1 },
+                { label: 'Imported', data: importData, backgroundColor: 'rgba(224, 82, 82, 0.55)', borderRadius: 1 }
+            ]
+        },
+        options: {
+            responsive: true,
+            animation: { duration: 1000 },
+            plugins: {
+                legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 14, font: { size: 11 } } },
+                tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} KToE` } }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+                y: { stacked: true, ticks: { callback: v => (v/1000).toFixed(0) + 'K' }, grid: { color: 'rgba(255,255,255,0.03)' } }
+            }
+        }
+    });
+}
+createStackedBar('coalImportChart', coalProd, coalImport);
+createStackedBar('oilImportChart', oilProd, oilImport);
+
+// ============ CHART 7: Renewables ============
+new Chart(document.getElementById('renewableChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Solar, Wind & Others', data: tpesData.solarWind, borderColor: C.solar, backgroundColor: 'rgba(46, 189, 128, 0.1)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5 },
+            { label: 'Nuclear', data: tpesData.nuclear, borderColor: C.nuclear, backgroundColor: 'rgba(54, 168, 184, 0.08)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 },
+            { label: 'Hydro', data: tpesData.hydro, borderColor: C.hydro, backgroundColor: 'rgba(75, 143, 212, 0.08)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true,
+        animation: { duration: 1200 },
+        plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { ticks: { callback: v => v.toLocaleString() }, title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ============ CHART 8: Sector Pie ============
+new Chart(document.getElementById('sectorPieChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Industry', 'Others (Residential, Agriculture, etc.)', 'Transport', 'Non-energy Use'],
+        datasets: [{
+            data: [311822.03, 206814.98, 71944.66, 23022.9],
+            backgroundColor: [C.coal, C.lavender, C.hydro, C.muted],
+            borderColor: '#141e30',
+            borderWidth: 2,
+            hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '55%',
+        plugins: {
+            datalabels: doughnutLabelOpts,
+            legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true, pointStyleWidth: 10, font: { size: 11 } } },
+            tooltip: { ...tooltipStyle, callbacks: {
+                label: ctx => {
+                    const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                    const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                    return `${ctx.label}: ${ctx.parsed.toLocaleString()} KToE (${pct}%)`;
+                }
+            }}
+        }
+    }
+});
+
+// ============ CHART 9: Sector Trend ============
+new Chart(document.getElementById('sectorTrendChart'), {
+    type: 'line',
+    data: {
+        labels: sectorYears,
+        datasets: [
+            { label: 'Industry', data: sectorIndustry, borderColor: C.coal, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5 },
+            { label: 'Others', data: sectorOthers, borderColor: C.lavender, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 },
+            { label: 'Transport', data: sectorTransport, borderColor: C.hydro, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { ticks: { callback: v => (v/1000).toFixed(0) + 'K' }, title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ============ CHART 10: Transport Pie ============
+new Chart(document.getElementById('transportPieChart'), {
+    type: 'doughnut',
+    data: {
+        labels: transportBreakdown.labels,
+        datasets: [{
+            data: transportBreakdown.values,
+            backgroundColor: [C.hydro, C.coal, C.solar, C.nuclear, C.gas],
+            borderColor: '#141e30',
+            borderWidth: 2,
+            hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '55%',
+        plugins: {
+            datalabels: doughnutLabelOpts,
+            legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true, pointStyleWidth: 10, font: { size: 11 } } },
+            tooltip: { ...tooltipStyle, callbacks: {
+                label: ctx => {
+                    const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                    const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                    return `${ctx.label}: ${ctx.parsed.toLocaleString()} KToE (${pct}%)`;
+                }
+            }}
+        }
+    }
+});
+
+// ============ CHART 11: Aviation ============
+new Chart(document.getElementById('aviationChart'), {
+    type: 'line',
+    data: {
+        labels: aviationYears,
+        datasets: [{
+            label: 'Aviation',
+            data: aviationData,
+            borderColor: C.coal,
+            backgroundColor: 'rgba(217, 119, 6, 0.1)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: C.coal,
+            pointBorderColor: 'transparent',
+            borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ============ CHART 12: Fuel Consumption ============
+new Chart(document.getElementById('fuelConsChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Coal', 'Oil Products (Diesel)', 'Oil Products (Petrol)', 'Oil Products (LPG)', 'Electricity', 'Natural Gas', 'Oil Products (Other)', 'Lignite'],
+        datasets: [{
+            data: [200947.38, 93063.98, 39825.82, 33506.37, 132698, 39687.34, 72590.87, 1584.87],
+            backgroundColor: [C.coal, C.crimson, C.lavender, '#c05898', '#c9a832', C.gas, C.muted, '#6b7280'],
+            borderRadius: 4,
+            hoverBackgroundColor: ['#f59e0b', '#ef5555', '#a78bfa', '#db62aa', '#e0c03e', '#8b7ec8', '#718096', '#7c8590']
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.x.toLocaleString()} KToE` } }
+        },
+        scales: {
+            x: { ticks: { callback: v => (v/1000).toFixed(0) + 'K' }, title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+    }
+});
+
+// ============ CHART 13: Oil Products ============
+new Chart(document.getElementById('oilProductsChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Diesel', 'Petrol', 'LPG', 'Pet Coke', 'Naphtha', 'Other', 'ATF', 'Bitumen', 'Fuel Oil', 'Lubricants', 'Kerosene'],
+        datasets: [{
+            data: [93063.98, 39825.82, 33506.37, 15529.6, 14845.3, 14108.13, 8785.18, 8203.94, 6217.94, 4100.09, 500.63],
+            backgroundColor: [C.crimson, C.lavender, '#c05898', C.gas, C.hydro, C.muted, C.coal, '#c9a832', C.nuclear, C.slate, C.solar],
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { ticks: { callback: v => (v/1000).toFixed(0) + 'K' }, title: { display: true, text: 'KToE', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+    }
+});
+
+// ============ CHART 14: Kerosene vs LPG ============
+new Chart(document.getElementById('keroLpgChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'LPG', data: lpgData, borderColor: C.teal, backgroundColor: 'rgba(45, 212, 168, 0.1)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5, spanGaps: true },
+            { label: 'Kerosene', data: keroData, borderColor: C.crimson, backgroundColor: 'rgba(224, 82, 82, 0.1)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5, spanGaps: true }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} KToE` } }
+        },
+        scales: {
+            y: { title: { display: true, text: 'KToE', color: '#6b7a90' }, ticks: { callback: v => v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.03)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ============ DATA TABLE ============
+const tableBody = document.querySelector('#dataTable tbody');
+years.forEach((yr, i) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${yr}</td>
+        <td>${tpesData.coal[i].toLocaleString()}</td>
+        <td>${tpesData.crudeOil[i].toLocaleString()}</td>
+        <td>${tpesData.naturalGas[i].toLocaleString()}</td>
+        <td>${tpesData.nuclear[i].toLocaleString()}</td>
+        <td>${tpesData.hydro[i].toLocaleString()}</td>
+        <td>${tpesData.solarWind[i].toLocaleString()}</td>
+        <td>${tpesData.total[i].toLocaleString()}</td>
+    `;
+    tableBody.appendChild(row);
+});
+
+// ============ SCROLL ANIMATIONS ============
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => revealObserver.observe(el));
+
+// ============ STICKY NAV EFFECTS ============
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backToTop = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section[id], .social-section[id]');
+const navLinksEl = document.querySelectorAll('.nav-links a');
+
+function updateScrollState() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = Math.min((scrollY / docHeight) * 100, 100);
+
+    navProgress.style.width = progress + '%';
+    nav.classList.toggle('scrolled', scrollY > 20);
+    backToTop.classList.toggle('visible', scrollY > 600);
+
+    // Active nav link
+    let currentSection = '';
+    sections.forEach(section => {
+        const top = section.offsetTop - 100;
+        if (scrollY >= top) currentSection = section.id;
+    });
+    navLinksEl.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + currentSection);
+    });
+}
+
+window.addEventListener('scroll', updateScrollState, { passive: true });
+updateScrollState();
+</script>
+</body>
+</html>

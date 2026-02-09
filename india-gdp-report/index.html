@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India GDP & National Accounts | MoSPI Data 2011-2025</title>
+    <meta name="description" content="Interactive report on India's GDP & National Accounts from MoSPI — covering GDP growth, GVA by industry, consumption, capital formation, trade, and savings.">
+    <meta property="og:title" content="India GDP & National Accounts Report 2011-2025">
+    <meta property="og:description" content="India's GDP crossed 33 lakh crore. Growth averaged 6.6% over the decade. Explore the full interactive report.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --accent: #34d399;
+            --accent-light: #6ee7b7;
+            --accent-glow: rgba(52, 211, 153, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-1: #34d399;
+            --chart-2: #60a5fa;
+            --chart-3: #f472b6;
+            --chart-4: #fbbf24;
+            --chart-5: #a78bfa;
+            --chart-6: #fb923c;
+            --chart-7: #38bdf8;
+            --chart-8: #e879f9;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(8, 13, 24, 0.85); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); border-bottom: 1px solid var(--border); height: var(--nav-height); display: flex; align-items: center; transition: box-shadow 0.3s; }
+        .site-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .nav-brand { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--accent-light); white-space: nowrap; letter-spacing: -0.01em; }
+        .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; transition: color 0.2s, background 0.2s; letter-spacing: 0.01em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent-light); }
+        .nav-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--chart-2)); width: 0%; transition: width 0.15s; }
+        .hero { position: relative; padding: 100px 24px 70px; overflow: hidden; background: var(--bg-deep); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(52, 211, 153, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(96, 165, 250, 0.05) 0%, transparent 60%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.35; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .hero-text h1 { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-text h1 span { display: block; color: var(--accent-light); font-size: 0.5em; font-weight: 400; font-style: italic; margin-top: 4px; letter-spacing: 0; }
+        .hero-text p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 20px; line-height: 1.7; }
+        .hero-text .source { color: var(--muted); font-size: 0.8rem; }
+        .hero-text .source a { color: var(--accent); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+        .hero-stat { text-align: right; padding-right: 20px; }
+        .hero-stat .big-number { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; color: var(--accent); opacity: 0.18; letter-spacing: -0.04em; }
+        .hero-stat .big-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+        .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 48px 0 32px; }
+        .highlight-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 10px; padding: 22px 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s; }
+        .highlight-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+        .highlight-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--accent); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--chart-2); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, rgba(96,165,250,0.12), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--chart-4); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--chart-6); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, rgba(251,146,60,0.12), transparent 70%); }
+        .highlight-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.02em; }
+        .highlight-card .label { color: var(--text-secondary); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+        .highlight-card .sublabel { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+        .report-section { padding: 56px 0 48px; position: relative; }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+        .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+        .section-num { font-family: var(--font-display); font-size: 3rem; font-weight: 300; color: var(--accent); opacity: 0.2; line-height: 1; letter-spacing: -0.04em; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .section-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: 0.95rem; max-width: 720px; line-height: 1.7; }
+        .section-divider { width: 48px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 12px 0 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; position: relative; }
+        .chart-card h3 { font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .insight { background: rgba(52, 211, 153, 0.06); border-left: 3px solid var(--accent); padding: 14px 18px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        .insight strong { color: var(--text); font-weight: 600; }
+        .social-section { padding: 56px 0; }
+        .social-section h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; margin-bottom: 28px; }
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .social-card { background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95)); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden; backdrop-filter: blur(8px); transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s; }
+        .social-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--chart-2), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--chart-4), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--chart-6), transparent 80%); }
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+        .social-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+        .social-card .hashtag { margin-top: 14px; color: var(--accent); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.01em; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+        thead { position: sticky; top: 0; z-index: 2; }
+        th { padding: 12px 16px; text-align: right; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(52, 211, 153, 0.04); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 48px 24px; background: var(--bg-deep); border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+        .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: var(--card); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 90; text-decoration: none; }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { background: var(--card-hover); color: var(--text); }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-stagger > .highlight-card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1); }
+        .reveal-stagger.visible > .highlight-card { opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+        @media (max-width: 1024px) { .highlights { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .hero-stat { display: none; } .hero-text h1 { font-size: 2.4rem; } }
+        @media (max-width: 700px) { .hero { padding: 80px 20px 50px; } .hero-text h1 { font-size: 1.8rem; } .hero-text p { font-size: 0.95rem; } .highlights { grid-template-columns: 1fr 1fr; gap: 10px; } .highlight-card { padding: 16px 14px; } .highlight-card .number { font-size: 1.5rem; } .highlight-card .label { font-size: 0.75rem; } .section-header h2 { font-size: 1.3rem; } .section-num { font-size: 2rem; } .social-grid { grid-template-columns: 1fr; } .nav-brand { display: none; } .nav-links a { font-size: 0.65rem; padding: 4px 7px; } .chart-card { padding: 20px 16px; } }
+        @media (max-width: 480px) { .highlights { grid-template-columns: 1fr; } .nav-links { gap: 2px; } }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India GDP</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#social">Highlights</a>
+            <a href="#gdp-trend">GDP</a>
+            <a href="#growth">Growth</a>
+            <a href="#gva-sector">GVA</a>
+            <a href="#gva-composition">Composition</a>
+            <a href="#expenditure">Expenditure</a>
+            <a href="#consumption">Consumption</a>
+            <a href="#gfcf">Investment</a>
+            <a href="#trade">Trade</a>
+            <a href="#savings">Savings</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India GDP &amp;<br>National Accounts <span>A fourteen-year portrait, 2011&ndash;12 to 2024&ndash;25</span></h1>
+            <p>From 87 lakh crore to over 330 lakh crore at current prices &mdash; India's GDP has nearly quadrupled in fourteen years, making it the world's 5th largest economy with a growth story defined by resilience, reform, and a pandemic-era shock.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation</a> &middot; National Accounts Statistics via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">&#8377;330L</div>
+            <div class="big-label">Cr GDP at Current Prices &middot; 2024-25</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<div class="container">
+    <div class="highlights reveal-stagger" id="highlightsGrid">
+        <div class="highlight-card">
+            <div class="number" style="color: var(--accent-light)">&#8377;33.07L Cr</div>
+            <div class="label">GDP at Current Prices</div>
+            <div class="sublabel">2024-25 (PE) &mdash; All-time high</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-2)">6.5%</div>
+            <div class="label">Real GDP Growth Rate</div>
+            <div class="sublabel">2024-25 at Constant (2011-12) Prices</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--crimson)">&minus;5.8%</div>
+            <div class="label">COVID Contraction (2020-21)</div>
+            <div class="sublabel">Deepest GDP decline in independent India</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--lavender)">60%</div>
+            <div class="label">Private Consumption Share</div>
+            <div class="sublabel">&#8377;20.3L Cr of GDP (2024-25 PE)</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-4)">29.9%</div>
+            <div class="label">GFCF as % of GDP</div>
+            <div class="sublabel">Investment rate rising steadily</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-6)">3.8x</div>
+            <div class="label">GDP Growth (Nominal, 14 Years)</div>
+            <div class="sublabel">&#8377;87L Cr &rarr; &#8377;330L Cr since 2011-12</div>
+        </div>
+    </div>
+</div>
+
+<section class="report-section social-section" id="social">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><h2>Share-Worthy Facts</h2></div>
+            <div class="section-divider"></div>
+        </div>
+        <div class="social-grid reveal">
+            <div class="social-card">
+                <div class="emoji">&#128200;</div>
+                <div class="stat">&#8377;33 Lakh Crore GDP</div>
+                <div class="desc">India's nominal GDP crossed &#8377;33 lakh crore in 2024-25 &mdash; nearly 4 times what it was in 2011-12. The economy has grown at ~10% nominally every year on average.</div>
+                <div class="hashtag">#IndiaGDP #MoSPI #NationalAccounts</div>
+            </div>
+            <div class="social-card">
+                <div class="emoji">&#128170;</div>
+                <div class="stat">Post-COVID Surge: 9.7%</div>
+                <div class="desc">After contracting 5.8% in 2020-21, India bounced back with 9.7% real growth in 2021-22 &mdash; the fastest recovery among major economies.</div>
+                <div class="hashtag">#IndiaRecovery #EconomicGrowth</div>
+            </div>
+            <div class="social-card">
+                <div class="emoji">&#127981;</div>
+                <div class="stat">Services Dominate at 54%</div>
+                <div class="desc">Financial services, trade, transport, and public administration together contribute over 54% of India's GVA. Manufacturing remains stuck at ~14%.</div>
+                <div class="hashtag">#ServiceEconomy #IndiaGVA</div>
+            </div>
+            <div class="social-card">
+                <div class="emoji">&#128176;</div>
+                <div class="stat">Investment Rate: 30% of GDP</div>
+                <div class="desc">Gross Fixed Capital Formation has risen to nearly 30% of GDP in 2024-25, driven by a massive government infrastructure push and private capex recovery.</div>
+                <div class="hashtag">#CapitalFormation #InvestInIndia</div>
+            </div>
+            <div class="social-card">
+                <div class="emoji">&#127823;</div>
+                <div class="stat">Agriculture: 18% of GVA</div>
+                <div class="desc">Despite employing ~45% of the workforce, agriculture's share of GVA is just 18%. The sector has shown remarkable COVID resilience with positive growth even in 2020-21.</div>
+                <div class="hashtag">#AgricultureIndia #FarmEconomy</div>
+            </div>
+            <div class="social-card">
+                <div class="emoji">&#128178;</div>
+                <div class="stat">Trade Deficit Persists</div>
+                <div class="desc">India's imports consistently exceed exports. In 2024-25, the goods &amp; services trade deficit stood at ~&#8377;7.7L Cr, reflecting energy import dependence and strong domestic demand.</div>
+                <div class="hashtag">#TradeDeficit #IndiaExports #IndiaImports</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 1: GDP Trend -->
+<section class="report-section" id="gdp-trend">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">01</span><h2>GDP Trend: Current vs Constant Prices</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">India's GDP at current prices has grown from &#8377;87.4 lakh crore (2011-12) to &#8377;330.7 lakh crore (2024-25 PE). At constant 2011-12 prices, real GDP grew from &#8377;87.4 to &#8377;188 lakh crore &mdash; a 2.15x increase reflecting actual economic expansion.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>GDP at Current &amp; Constant Prices (&#8377; Lakh Crore)</h3>
+                <canvas id="gdpTrendChart"></canvas>
+                <div class="insight"><strong>Key Insight:</strong> The gap between current and constant price GDP widens over time, reflecting cumulative inflation. Nominal GDP grew 3.8x while real GDP grew 2.15x over the period.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: GDP Growth Rate -->
+<section class="report-section" id="growth">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">02</span><h2>GDP Growth Rate</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">India's real GDP growth rate has averaged around 6.6% per year (excluding the COVID dip), making it one of the fastest-growing major economies in the world.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>Real GDP Growth Rate (% YoY at Constant Prices)</h3>
+                <canvas id="growthChart"></canvas>
+                <div class="insight"><strong>Key Insight:</strong> The 2020-21 contraction of -5.8% was India's worst economic performance since independence. The V-shaped recovery saw 9.7% growth in 2021-22, followed by 7.6% in 2022-23.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: GVA by Sector -->
+<section class="report-section" id="gva-sector">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">03</span><h2>GVA by Industry Sector</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">Gross Value Added by production approach reveals the sectoral composition of India's economy &mdash; how different industries contribute to national output.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>Sectoral GVA at Current Prices (&#8377; Lakh Crore) &mdash; 2023-24 FRE</h3>
+                <canvas id="gvaSectorChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 4: GVA Composition -->
+<section class="report-section" id="gva-composition">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">04</span><h2>GVA Composition: 2012-13 vs 2023-24</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">How India's economic structure has shifted over the decade &mdash; agriculture's declining share, services' growing dominance, and manufacturing's stagnation.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card">
+                <h3>GVA Composition 2012-13</h3>
+                <canvas id="gvaComp2012Chart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>GVA Composition 2023-24 (FRE)</h3>
+                <canvas id="gvaComp2024Chart"></canvas>
+            </div>
+        </div>
+        <div class="insight reveal" style="margin-top: 24px;">
+            <strong>Structural Shift:</strong> Agriculture fell from 18.2% to 17.8%, Manufacturing slipped from 17.1% to 14.3%, while Financial &amp; Real Estate services rose from 19.7% to 21.3%. The services sector now contributes over 54% of GVA.
+        </div>
+    </div>
+</section>
+
+<!-- Section 5: Expenditure Components -->
+<section class="report-section" id="expenditure">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">05</span><h2>GDP by Expenditure</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">The expenditure approach to GDP shows how national output is consumed &mdash; private consumption, government spending, investment, and net exports.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>GDP Expenditure Components at Current Prices (&#8377; Lakh Crore)</h3>
+                <canvas id="expenditureChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 6: Consumption -->
+<section class="report-section" id="consumption">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">06</span><h2>Consumption Trends</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">Private Final Consumption Expenditure (PFCE) is the single largest component of India's GDP, reflecting the spending power of 1.4 billion consumers.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>Private &amp; Government Consumption (&#8377; Lakh Crore, Constant Prices)</h3>
+                <canvas id="consumptionChart"></canvas>
+                <div class="insight"><strong>Key Insight:</strong> Private consumption at constant prices grew from &#8377;49.1L Cr (2011-12) to &#8377;106.2L Cr (2024-25 PE) &mdash; a 2.16x increase. Government consumption surged during COVID from &#8377;18.8L Cr to &#8377;23.6L Cr.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 7: GFCF -->
+<section class="report-section" id="gfcf">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">07</span><h2>Investment: Gross Fixed Capital Formation</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">GFCF measures investment in physical assets &mdash; factories, machinery, buildings, and infrastructure. It's the key driver of long-term economic growth.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>GFCF Trend (&#8377; Lakh Crore, Current Prices)</h3>
+                <canvas id="gfcfChart"></canvas>
+                <div class="insight"><strong>Key Insight:</strong> GFCF nearly doubled from &#8377;34.3L Cr in 2014-15 to &#8377;98.9L Cr in 2024-25 PE. The investment rate (GFCF/GDP) has climbed from ~28% to ~30%, driven by government infrastructure spending.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 8: Trade -->
+<section class="report-section" id="trade">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">08</span><h2>Exports vs Imports</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">India's trade in goods and services &mdash; showing the persistent trade deficit driven largely by energy imports.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>Exports &amp; Imports of Goods &amp; Services (&#8377; Lakh Crore, Current Prices)</h3>
+                <canvas id="tradeChart"></canvas>
+                <div class="insight"><strong>Key Insight:</strong> India's trade deficit (imports minus exports) widened from &#8377;6.7L Cr in 2012-13 to &#8377;7.7L Cr in 2024-25. Exports grew 2.9x while imports grew 2.5x over the period, but imports still exceed exports consistently.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 9: Savings -->
+<section class="report-section" id="savings">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">09</span><h2>Gross Savings by Sector</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">How different sectors of the economy contribute to national savings &mdash; households remain the dominant savers while government dis-saves.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>Gross Savings by Institutional Sector (&#8377; Lakh Crore, Current Prices)</h3>
+                <canvas id="savingsChart"></canvas>
+                <div class="insight"><strong>Key Insight:</strong> Household savings dominate at &#8377;54.6L Cr (2023-24), followed by private corporations at &#8377;28.7L Cr. Government savings remain deeply negative at -&#8377;2.9L Cr, reflecting persistent fiscal deficits.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 10: National Income -->
+<section class="report-section" id="national-income">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">10</span><h2>GDP Growth Trajectory</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">India's growth story at a glance &mdash; real GDP indexed to 2011-12 levels shows the underlying growth trajectory.</p>
+        </div>
+        <div class="chart-grid reveal">
+            <div class="chart-card full-width">
+                <h3>Real GDP Index (2011-12 = 100)</h3>
+                <canvas id="gdpIndexChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Data Table -->
+<section class="report-section" id="data-table">
+    <div class="container">
+        <div class="reveal">
+            <div class="section-header"><span class="section-num">&#8718;</span><h2>Reference Data Table</h2></div>
+            <div class="section-divider"></div>
+            <p class="section-desc">GDP at current and constant prices, growth rates &mdash; latest available revision for each year.</p>
+        </div>
+        <div class="data-table-wrap reveal">
+            <table id="dataTable">
+                <thead><tr><th>Year</th><th>GDP Current (&#8377;L Cr)</th><th>GDP Constant (&#8377;L Cr)</th><th>Growth Rate (%)</th><th>PFCE Current (&#8377;L Cr)</th><th>Exports (&#8377;L Cr)</th><th>Imports (&#8377;L Cr)</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <p>Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation (MoSPI)</a> &middot; National Accounts Statistics</p>
+    <p>Built with data from the eSankhyiki API &middot; All values in &#8377; Crore unless noted</p>
+    <p style="opacity: 0.5;">Report generated February 2026</p>
+    <div class="footer-dashboards">
+        <strong>GDP</strong> &middot;
+        <a href="../india-inflation-report/">CPI Inflation</a> &middot;
+        <a href="../india-employment-report/">Employment</a> &middot;
+        <a href="../india-industrial-report/">IIP</a> &middot;
+        <a href="../india-factory-report/">Factory Survey</a> &middot;
+        <a href="../india-wholesale-prices-report/">WPI</a> &middot;
+        <a href="../india-energy-report/">Energy</a>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop" aria-label="Back to top">&uarr;</a>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.color = '#6b7a90';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.04)';
+Chart.defaults.font.family = "'DM Sans', -apple-system, sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.datalabels = { display: false };
+
+const doughnutLabelOpts = {
+    display: ctx => { const t = ctx.dataset.data.reduce((a,b) => a+b, 0); return ((ctx.dataset.data[ctx.dataIndex] / t) * 100) >= 3; },
+    color: '#e8edf5', font: { size: 11, weight: '600', family: "'DM Sans', sans-serif" },
+    textShadowColor: 'rgba(0,0,0,0.6)', textShadowBlur: 4,
+    formatter: (v, ctx) => { const t = ctx.dataset.data.reduce((a,b) => a+b, 0); return ((v / t) * 100).toFixed(1) + '%'; },
+    anchor: 'center', align: 'center', offset: 0
+};
+
+const tooltipStyle = { backgroundColor: 'rgba(20,30,48,0.95)', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1, titleColor: '#e8edf5', bodyColor: '#a0aec0', cornerRadius: 8, padding: 12, titleFont: { weight: '600' }, displayColors: true, boxPadding: 4 };
+
+const years = ['2011-12','2012-13','2013-14','2014-15','2015-16','2016-17','2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24','2024-25'];
+
+// GDP Data (latest revision for each year, in Crore)
+const gdpCurrent = [8736329, 9944013, 11233522, 12467959, 13771874, 15391669, 17090042, 18899668, 20103593, 19854096, 23597399, 26890473, 30122956, 33068145];
+const gdpConstant = [8736329, 9213017, 9801370, 10527674, 11369493, 12308193, 13144582, 13992914, 14534641, 13694869, 15021846, 16164913, 17650591, 18796955];
+
+// GDP Growth Rate (latest revision, constant prices %)
+const gdpGrowthRate = [null, 5.46, 6.39, 7.41, 8.0, 8.3, 6.80, 6.45, 3.87, -5.78, 9.69, 7.61, 9.19, 6.49];
+
+// Private Final Consumption (latest revision, current prices, Crore)
+const pfceCurrent = [4910447, 5614484, 6475649, 7247340, 8126408, 9126533, 10036153, 11205296, 12245357, 12130481, 14382704, 16527862, 18130431, 20298413];
+const pfceConstant = [4910447, 5179091, 5557329, 5912657, 6381419, 6900236, 7330728, 7850444, 8256218, 7819509, 8732573, 9384943, 9906774, 10619579];
+
+// Government Final Consumption (approximate from data, current prices, Crore)
+const govtCurrent = [1038892, 1142866, 1218789, 1336693, 1473424, 1661697, 1870116, 2058766, 2252729, 2514870, 2569866, 2668403, 3002543, 3200000];
+const govtConstant = [1038892, 1083472, 1114697, 1237855, 1366789, 1483217, 1696479, 1833073, 1905671, 1953489, 2049965, 2118800, 2250000, 2390000];
+
+// GFCF (latest revision, current prices, Crore)
+const gfcfCurrent = [3234039, 3449087, 3785920, 4296458, 4816773, 5275000, 5584800, 5743700, 5720386, 5425000, 6979647, 8396038, 9165224, 9886129];
+
+// Exports (latest revision, current prices, Crore)
+const exportsCurrent = [2143931, 2439707, 2856781, 2863636, 2728647, 2948772, 3211521, 3766294, 3752188, 3709237, 5049645, 6252449, 6460982, 6997830];
+
+// Imports (latest revision, current prices, Crore)
+const importsCurrent = [2715554, 3108428, 3191811, 3235962, 3044923, 3220591, 3751389, 4477169, 4270232, 3787294, 5669023, 7213027, 7092192, 7766863];
+
+// GVA by sector 2012-13 (Second Revised, Crore, current prices)
+const gva2012 = {
+    labels: ['Agriculture', 'Mining', 'Manufacturing', 'Utilities', 'Construction', 'Trade & Transport', 'Finance & Real Estate', 'Public Admin'],
+    values: [1675107, 285842, 1572837, 215350, 849365, 1603193, 1815000, 1186000]
+};
+
+// GVA by sector 2023-24 FRE (Crore, current prices)
+const gva2024 = {
+    labels: ['Agriculture', 'Mining', 'Manufacturing', 'Utilities', 'Construction', 'Trade & Transport', 'Finance & Real Estate', 'Public Admin'],
+    values: [4877867, 532343, 3921596, 766435, 2401618, 4912939, 5826765, 3923818]
+};
+
+// Savings by sector (2023-24 FRE, current prices, Crore)
+const savingsData = {
+    years: ['2018-19','2019-20','2020-21','2021-22','2022-23','2023-24'],
+    households: [3446760, 3845173, 4505626, 4742333, 5010475, 5461259],
+    privateCorp: [1809919, 1839009, 1855329, 2420719, 2644507, 2874934],
+    government: [-148314, -560171, -1321438, -703359, -512622, -285934],
+    publicCorp: [433288, 605134, 514156, 671977, 796479, 873411]
+};
+
+const C = {
+    accent: '#34d399', blue: '#60a5fa', pink: '#f472b6', yellow: '#fbbf24',
+    purple: '#a78bfa', orange: '#fb923c', cyan: '#38bdf8', magenta: '#e879f9',
+    crimson: '#e05252', teal: '#2dd4a8', muted: '#4a5568'
+};
+
+// CHART 1: GDP Trend
+new Chart(document.getElementById('gdpTrendChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Current Prices', data: gdpCurrent.map(v => v/100000), borderColor: C.accent, backgroundColor: 'rgba(52, 211, 153, 0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: C.accent, pointBorderColor: 'transparent', borderWidth: 2.5 },
+            { label: 'Constant (2011-12) Prices', data: gdpConstant.map(v => v/100000), borderColor: C.blue, backgroundColor: 'rgba(96, 165, 250, 0.06)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true, animation: { duration: 1200, easing: 'easeOutQuart' },
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L Cr` } } },
+        scales: { y: { beginAtZero: false, ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, title: { display: true, text: '₹ Lakh Crore', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false } } }
+    }
+});
+
+// CHART 2: Growth Rate
+new Chart(document.getElementById('growthChart'), {
+    type: 'bar',
+    data: {
+        labels: years.slice(1),
+        datasets: [{
+            label: 'Real GDP Growth',
+            data: gdpGrowthRate.slice(1),
+            backgroundColor: gdpGrowthRate.slice(1).map(v => v < 0 ? 'rgba(224, 82, 82, 0.7)' : 'rgba(52, 211, 153, 0.55)'),
+            borderColor: gdpGrowthRate.slice(1).map(v => v < 0 ? C.crimson : C.accent),
+            borderWidth: 1, borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, animation: { duration: 1000 },
+        plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `Growth: ${ctx.parsed.y.toFixed(1)}%` } } },
+        scales: { y: { ticks: { callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false }, ticks: { font: { size: 10 } } } }
+    }
+});
+
+// CHART 3: GVA by Sector (Horizontal Bar)
+new Chart(document.getElementById('gvaSectorChart'), {
+    type: 'bar',
+    data: {
+        labels: gva2024.labels,
+        datasets: [{
+            data: gva2024.values.map(v => v/100000),
+            backgroundColor: [C.accent, C.muted, C.blue, C.yellow, C.orange, C.pink, C.purple, C.cyan],
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true,
+        plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `₹${ctx.parsed.x.toFixed(1)}L Cr` } } },
+        scales: { x: { ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, grid: { color: 'rgba(255,255,255,0.03)' } }, y: { grid: { display: false }, ticks: { font: { size: 11 } } } }
+    }
+});
+
+// CHART 4 & 5: GVA Composition Doughnuts
+function createGvaComp(canvasId, data) {
+    new Chart(document.getElementById(canvasId), {
+        type: 'doughnut',
+        data: {
+            labels: data.labels,
+            datasets: [{ data: data.values, backgroundColor: [C.accent, C.muted, C.blue, C.yellow, C.orange, C.pink, C.purple, C.cyan], borderColor: '#141e30', borderWidth: 2, hoverOffset: 6 }]
+        },
+        options: {
+            responsive: true, cutout: '55%', animation: { duration: 1000 },
+            plugins: {
+                datalabels: doughnutLabelOpts,
+                legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, pointStyleWidth: 10, font: { size: 10 } } },
+                tooltip: { ...tooltipStyle, callbacks: { label: ctx => { const t = ctx.dataset.data.reduce((a,b) => a+b, 0); return `${ctx.label}: ₹${(ctx.parsed/100000).toFixed(1)}L Cr (${((ctx.parsed / t) * 100).toFixed(1)}%)`; } } }
+            }
+        }
+    });
+}
+createGvaComp('gvaComp2012Chart', gva2012);
+createGvaComp('gvaComp2024Chart', gva2024);
+
+// CHART 6: Expenditure Stacked Bar
+new Chart(document.getElementById('expenditureChart'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Private Consumption', data: pfceCurrent.map(v => v/100000), backgroundColor: 'rgba(52, 211, 153, 0.55)', borderColor: C.accent, borderWidth: 1, borderRadius: 1 },
+            { label: 'Govt Consumption', data: govtCurrent.map(v => v/100000), backgroundColor: 'rgba(96, 165, 250, 0.55)', borderColor: C.blue, borderWidth: 1, borderRadius: 1 },
+            { label: 'GFCF', data: gfcfCurrent.map(v => v/100000), backgroundColor: 'rgba(251, 191, 36, 0.55)', borderColor: C.yellow, borderWidth: 1, borderRadius: 1 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 14, font: { size: 11 } } }, tooltip: { ...tooltipStyle, mode: 'index', callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L Cr` } } },
+        scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } }, y: { stacked: true, ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, grid: { color: 'rgba(255,255,255,0.03)' } } }
+    }
+});
+
+// CHART 7: Consumption Trend
+new Chart(document.getElementById('consumptionChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Private Consumption', data: pfceConstant.map(v => v/100000), borderColor: C.accent, backgroundColor: 'rgba(52, 211, 153, 0.08)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5 },
+            { label: 'Govt Consumption', data: govtConstant.map(v => v/100000), borderColor: C.blue, backgroundColor: 'rgba(96, 165, 250, 0.06)', fill: true, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L Cr` } } },
+        scales: { y: { ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, title: { display: true, text: '₹ Lakh Crore (Constant)', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false } } }
+    }
+});
+
+// CHART 8: GFCF Trend
+new Chart(document.getElementById('gfcfChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'GFCF', data: gfcfCurrent.map(v => v/100000),
+            borderColor: C.yellow, backgroundColor: 'rgba(251, 191, 36, 0.08)', fill: true,
+            tension: 0.35, pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: C.yellow, pointBorderColor: 'transparent', borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `GFCF: ₹${ctx.parsed.y.toFixed(1)}L Cr` } } },
+        scales: { y: { beginAtZero: false, ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, title: { display: true, text: '₹ Lakh Crore', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false } } }
+    }
+});
+
+// CHART 9: Trade
+new Chart(document.getElementById('tradeChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Exports', data: exportsCurrent.map(v => v/100000), borderColor: C.accent, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5 },
+            { label: 'Imports', data: importsCurrent.map(v => v/100000), borderColor: C.crimson, tension: 0.35, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16, font: { size: 11 } } }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L Cr` } } },
+        scales: { y: { ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, title: { display: true, text: '₹ Lakh Crore', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false } } }
+    }
+});
+
+// CHART 10: Savings
+new Chart(document.getElementById('savingsChart'), {
+    type: 'bar',
+    data: {
+        labels: savingsData.years,
+        datasets: [
+            { label: 'Households', data: savingsData.households.map(v => v/100000), backgroundColor: 'rgba(52, 211, 153, 0.6)', borderRadius: 2 },
+            { label: 'Private Corporations', data: savingsData.privateCorp.map(v => v/100000), backgroundColor: 'rgba(96, 165, 250, 0.6)', borderRadius: 2 },
+            { label: 'Public Corporations', data: savingsData.publicCorp.map(v => v/100000), backgroundColor: 'rgba(251, 191, 36, 0.6)', borderRadius: 2 },
+            { label: 'Government', data: savingsData.government.map(v => v/100000), backgroundColor: 'rgba(224, 82, 82, 0.6)', borderRadius: 2 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyleWidth: 10, padding: 14, font: { size: 11 } } }, tooltip: { ...tooltipStyle, mode: 'index', callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toFixed(1)}L Cr` } } },
+        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { callback: v => '₹' + v.toFixed(0) + 'L' }, grid: { color: 'rgba(255,255,255,0.03)' } } }
+    }
+});
+
+// CHART 11: GDP Index
+const baseGDP = gdpConstant[0];
+new Chart(document.getElementById('gdpIndexChart'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Real GDP Index', data: gdpConstant.map(v => (v/baseGDP)*100),
+            borderColor: C.accent, backgroundColor: 'rgba(52, 211, 153, 0.1)', fill: true,
+            tension: 0.35, pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: C.accent, pointBorderColor: 'transparent', borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `Index: ${ctx.parsed.y.toFixed(1)}` } } },
+        scales: { y: { title: { display: true, text: 'Index (2011-12 = 100)', color: '#6b7a90' }, grid: { color: 'rgba(255,255,255,0.03)' } }, x: { grid: { display: false } } }
+    }
+});
+
+// DATA TABLE
+const tableBody = document.querySelector('#dataTable tbody');
+years.forEach((yr, i) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${yr}</td><td>${(gdpCurrent[i]/100000).toFixed(1)}</td><td>${(gdpConstant[i]/100000).toFixed(1)}</td><td>${gdpGrowthRate[i] !== null ? gdpGrowthRate[i].toFixed(1) + '%' : '—'}</td><td>${(pfceCurrent[i]/100000).toFixed(1)}</td><td>${(exportsCurrent[i]/100000).toFixed(1)}</td><td>${(importsCurrent[i]/100000).toFixed(1)}</td>`;
+    tableBody.appendChild(row);
+});
+
+// SCROLL ANIMATIONS
+const revealObserver = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => revealObserver.observe(el));
+
+// NAV
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backToTop = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section[id], .social-section[id]');
+const navLinksEl = document.querySelectorAll('.nav-links a');
+function updateScrollState() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    navProgress.style.width = Math.min((scrollY / docHeight) * 100, 100) + '%';
+    nav.classList.toggle('scrolled', scrollY > 20);
+    backToTop.classList.toggle('visible', scrollY > 600);
+    let cur = '';
+    sections.forEach(s => { if (scrollY >= s.offsetTop - 100) cur = s.id; });
+    navLinksEl.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + cur));
+}
+window.addEventListener('scroll', updateScrollState, { passive: true });
+updateScrollState();
+</script>
+</body>
+</html>

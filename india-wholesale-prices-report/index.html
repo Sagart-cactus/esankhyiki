@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India's Wholesale Price Index | MoSPI WPI Data 2013-2025</title>
+    <meta name="description" content="Interactive report on India's Wholesale Price Index — covering all commodities, primary articles, fuel & power, manufactured products, and food inflation from 2013 to 2025.">
+    <meta property="og:title" content="India's Wholesale Price Index | MoSPI WPI Data 2013-2025">
+    <meta property="og:description" content="From 108 in January 2013 to 155 in January 2025 — India's wholesale prices rose 44% in 13 years, with a dramatic fuel price rollercoaster and persistent food inflation driving the narrative.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --accent: #eab308;
+            --accent-light: #facc15;
+            --accent-glow: rgba(234, 179, 8, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-1: #eab308;
+            --chart-2: #60a5fa;
+            --chart-3: #34d399;
+            --chart-4: #fbbf24;
+            --chart-5: #a78bfa;
+            --chart-6: #fb923c;
+            --chart-7: #38bdf8;
+            --chart-8: #e879f9;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(8, 13, 24, 0.85); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); border-bottom: 1px solid var(--border); height: var(--nav-height); display: flex; align-items: center; transition: box-shadow 0.3s; }
+        .site-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .nav-brand { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--accent-light); white-space: nowrap; letter-spacing: -0.01em; }
+        .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; transition: color 0.2s, background 0.2s; letter-spacing: 0.01em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent-light); }
+        .nav-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); width: 0%; transition: width 0.15s; }
+        .hero { position: relative; padding: 100px 24px 70px; overflow: hidden; background: var(--bg-deep); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(234, 179, 8, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(250, 204, 21, 0.05) 0%, transparent 60%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.35; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .hero-text h1 { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-text h1 span { display: block; color: var(--accent-light); font-size: 0.5em; font-weight: 400; font-style: italic; margin-top: 4px; letter-spacing: 0; }
+        .hero-text p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 20px; line-height: 1.7; }
+        .hero-text .source { color: var(--muted); font-size: 0.8rem; }
+        .hero-text .source a { color: var(--accent); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+        .hero-stat { text-align: right; padding-right: 20px; }
+        .hero-stat .big-number { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; color: var(--accent); opacity: 0.18; letter-spacing: -0.04em; }
+        .hero-stat .big-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+        .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 48px 0 32px; }
+        .highlight-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 10px; padding: 22px 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s; }
+        .highlight-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+        .highlight-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--accent); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--chart-2); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, rgba(96,165,250,0.12), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--chart-4); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--chart-6); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, rgba(251,146,60,0.12), transparent 70%); }
+        .highlight-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.02em; }
+        .highlight-card .label { color: var(--text-secondary); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+        .highlight-card .sublabel { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+        .report-section { padding: 56px 0 48px; position: relative; }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+        .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+        .section-num { font-family: var(--font-display); font-size: 3rem; font-weight: 300; color: var(--accent); opacity: 0.2; line-height: 1; letter-spacing: -0.04em; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .section-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: 0.95rem; max-width: 720px; line-height: 1.7; }
+        .section-divider { width: 48px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 12px 0 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; position: relative; }
+        .chart-card h3 { font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .insight { background: rgba(234, 179, 8, 0.06); border-left: 3px solid var(--accent); padding: 14px 18px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        .insight strong { color: var(--text); font-weight: 600; }
+        .social-section { padding: 56px 0; }
+        .social-section h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; margin-bottom: 28px; }
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .social-card { background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95)); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden; backdrop-filter: blur(8px); transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s; }
+        .social-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--chart-2), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--chart-4), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--chart-6), transparent 80%); }
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+        .social-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+        .social-card .hashtag { margin-top: 14px; color: var(--accent); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.01em; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+        thead { position: sticky; top: 0; z-index: 2; }
+        th { padding: 12px 16px; text-align: right; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(234, 179, 8, 0.04); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 48px 24px; background: var(--bg-deep); border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+        .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: var(--card); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 90; text-decoration: none; }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { background: var(--card-hover); color: var(--text); }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-stagger > .highlight-card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1); }
+        .reveal-stagger.visible > .highlight-card { opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+        @media (max-width: 1024px) { .highlights { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .hero-stat { display: none; } .hero-text h1 { font-size: 2.4rem; } }
+        @media (max-width: 700px) { .hero { padding: 80px 20px 50px; } .hero-text h1 { font-size: 1.8rem; } .hero-text p { font-size: 0.95rem; } .highlights { grid-template-columns: 1fr 1fr; gap: 10px; } .highlight-card { padding: 16px 14px; } .highlight-card .number { font-size: 1.5rem; } .highlight-card .label { font-size: 0.75rem; } .section-header h2 { font-size: 1.3rem; } .section-num { font-size: 2rem; } .social-grid { grid-template-columns: 1fr; } .nav-brand { display: none; } .nav-links a { font-size: 0.65rem; padding: 4px 7px; } .chart-card { padding: 20px 16px; } }
+        @media (max-width: 480px) { .highlights { grid-template-columns: 1fr; } .nav-links { gap: 2px; } }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India WPI</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#highlights">Highlights</a>
+            <a href="#social">Social</a>
+            <a href="#wpi-trend">WPI Trend</a>
+            <a href="#major-groups">Major Groups</a>
+            <a href="#composition">Composition</a>
+            <a href="#food">Food</a>
+            <a href="#fuel">Fuel</a>
+            <a href="#primary-mfg">Primary vs Mfg</a>
+            <a href="#inflation">Inflation</a>
+            <a href="#data-table">Data Table</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India&rsquo;s Wholesale<br>Price Index <span>Thirteen years of producer prices, 2013 to 2025</span></h1>
+            <p>From 108 in January 2013 to 155 in January 2025 &mdash; India&rsquo;s wholesale prices rose 44% in 13 years, with a dramatic fuel price rollercoaster and persistent food inflation driving the narrative.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">MoSPI</a> &middot; WPI (Base 2011&ndash;12=100) via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">155.0</div>
+            <div class="big-label">WPI All Commodities &middot; Jan 2025</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<div class="container" id="highlights">
+    <div class="highlights reveal-stagger">
+        <div class="highlight-card">
+            <div class="number" style="color: var(--accent);">155.0</div>
+            <div class="label">WPI All Commodities</div>
+            <div class="sublabel">Jan 2025 &middot; Base 2011&ndash;12=100</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-2);">189.7</div>
+            <div class="label">Primary Articles</div>
+            <div class="sublabel">90% up from base year</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--crimson);">152.0</div>
+            <div class="label">Fuel &amp; Power</div>
+            <div class="sublabel">Volatile journey &middot; Jan 2025</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--lavender);">143.4</div>
+            <div class="label">Manufactured Products</div>
+            <div class="sublabel">Steady climb over 13 years</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-4);">191.5</div>
+            <div class="label">Food Index</div>
+            <div class="sublabel">Highest of all groups</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-6);">+2.5%</div>
+            <div class="label">YoY WPI Inflation</div>
+            <div class="sublabel">Jan 2025 vs Jan 2024</div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== SOCIAL CARDS ====== -->
+<section class="social-section container" id="social">
+    <h2 class="reveal">Share-worthy Facts</h2>
+    <div class="social-grid reveal">
+        <div class="social-card">
+            <div class="emoji">&#x1F4C8;</div>
+            <div class="stat">WPI up 44%: 108 &rarr; 155</div>
+            <div class="desc">In 13 years, India&rsquo;s wholesale price index for all commodities rose from 108 to 155 &mdash; a 44% increase in producer-level prices.</div>
+            <div class="hashtag">#WholesaleInflation</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F35E;</div>
+            <div class="stat">Food prices: 191.5</div>
+            <div class="desc">The food index has nearly doubled from base year. At 191.5, food remains India&rsquo;s biggest inflation worry &mdash; outpacing every other commodity group.</div>
+            <div class="hashtag">#FoodInflation</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x26FD;</div>
+            <div class="stat">Fuel rollercoaster: 80 &rarr; 156</div>
+            <div class="desc">Fuel &amp; Power crashed from 120 to 80 in 2016, then surged to 156 by 2023 &mdash; a 95% swing in a decade driven by global crude oil prices.</div>
+            <div class="hashtag">#OilPrices</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F3ED;</div>
+            <div class="stat">Manufacturing: only 43% up</div>
+            <div class="desc">Manufactured products saw the most moderate increase &mdash; just 43% in 13 years. Factory-gate inflation has stayed relatively contained.</div>
+            <div class="hashtag">#Manufacturing</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F4C9;</div>
+            <div class="stat">WPI deflation in 2015&ndash;16</div>
+            <div class="desc">Wholesale prices actually fell in 2015 and 2016 &mdash; negative WPI inflation driven by the global commodity price crash. A rare deflationary episode.</div>
+            <div class="hashtag">#Deflation</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F4A5;</div>
+            <div class="stat">2022 shock: 13.7% WPI surge</div>
+            <div class="desc">The sharpest WPI spike since the global commodity supercycle &mdash; 13.7% in January 2022, driven by post-COVID supply disruptions and energy costs.</div>
+            <div class="hashtag">#InflationSpike</div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 1: WPI ALL COMMODITIES TREND ====== -->
+<section class="report-section" id="wpi-trend">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <h2>WPI All Commodities Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The Wholesale Price Index (WPI) measures the average change in prices of goods at the wholesale level. With base year 2011&ndash;12=100, the All Commodities index captures price movements across primary articles, fuel, and manufactured products.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>WPI All Commodities &mdash; January Values (Base 2011&ndash;12=100)</h3>
+                <canvas id="chartWpiTrend"></canvas>
+                <div class="insight"><strong>Key insight:</strong> WPI rose 44% in 13 years. The sharpest jump was between 2021&ndash;22 when commodity prices surged globally, pushing the index from 126.5 to 143.8 &mdash; a single-year leap of 13.7%.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 2: MAJOR GROUP INDICES ====== -->
+<section class="report-section" id="major-groups">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <h2>Major Group Indices</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">WPI tracks five key sub-indices: All Commodities, Primary Articles, Fuel &amp; Power, Manufactured Products, and the derived Food Index. Each tells a distinct story about India&rsquo;s wholesale price dynamics.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>All Major Group Indices &mdash; January Values (2013&ndash;2025)</h3>
+                <canvas id="chartMajorGroups"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Primary Articles (189.7) and Food Index (191.5) have risen nearly 90% from base, while Manufactured Products (143.4) saw the most moderate increase. Fuel &amp; Power had the wildest ride &mdash; crashing to 79.8 in 2016 before surging to 155.6 in 2023.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 3: WPI COMPOSITION ====== -->
+<section class="report-section" id="composition">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <h2>WPI Composition</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">WPI assigns different weights to each major group based on their share in wholesale trade. Manufactured Products dominate at 64%, while Primary Articles and Fuel &amp; Power make up the rest. Comparing weights to actual index values reveals which groups are punching above their weight.</p>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>WPI Weight Structure (Base 2011&ndash;12)</h3>
+                <canvas id="chartWeights"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Index Divergence &mdash; Jan 2025 Values</h3>
+                <canvas id="chartDivergence"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 4: FOOD PRICE STORY ====== -->
+<section class="report-section" id="food">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <h2>Food Price Story</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The Food Index is a derived composite cutting across Primary Articles and Manufactured Products. It tracks wholesale prices of food items &mdash; the most politically sensitive component of inflation in India.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Food Index &amp; YoY Growth (%) &mdash; January Values</h3>
+                <canvas id="chartFood"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Food inflation has been persistently high, averaging ~4.5% annually. The 2020 spike (+10%) and 2025 surge (+7.5%) show food prices remain India&rsquo;s inflation pain point, driven by erratic monsoons and supply bottlenecks.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 5: FUEL & POWER VOLATILITY ====== -->
+<section class="report-section" id="fuel">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <h2>Fuel &amp; Power Volatility</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Fuel &amp; Power is the most volatile component of WPI, swinging dramatically with global crude oil prices. This group includes coal, mineral oils, and electricity &mdash; each responding to different supply-demand dynamics.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Fuel &amp; Power Index &mdash; January Values (2013&ndash;2025)</h3>
+                <canvas id="chartFuel"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Fuel prices crashed from 119.9 in 2014 to 79.8 in 2016 (&minus;33%), then surged to 155.6 in 2023 (+95%). This rollercoaster reflects global crude oil price swings. The recent stabilization around 152&ndash;155 suggests a new normal.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 6: PRIMARY VS MANUFACTURED ====== -->
+<section class="report-section" id="primary-mfg">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">06</span>
+            <h2>Primary vs Manufactured</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Comparing Primary Articles (raw materials) with Manufactured Products (finished goods) reveals the input-output price dynamics of Indian manufacturing. A widening gap signals margin pressure for producers.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Primary Articles vs Manufactured Products &mdash; Index Comparison</h3>
+                <canvas id="chartPrimaryMfg"></canvas>
+                <div class="insight"><strong>Key insight:</strong> The gap between Primary (189.7) and Manufactured (143.4) indices has widened from 8 percentage points in 2013 to 46pp in 2025. Raw material prices are rising much faster than finished goods, squeezing manufacturing margins.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 7: YOY INFLATION RATES ====== -->
+<section class="report-section" id="inflation">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">07</span>
+            <h2>YoY Inflation Rates</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Year-on-year WPI inflation measures the percentage change in the index from one January to the next. Positive values indicate rising prices; negative values indicate deflation at the wholesale level.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>WPI All Commodities &mdash; YoY Inflation Rate (%)</h3>
+                <canvas id="chartInflation"></canvas>
+                <div class="insight"><strong>Key insight:</strong> WPI saw deflation in 2015&ndash;16 when global commodity prices crashed. The 2022 spike of 13.7% was the highest in a decade, driven by post-COVID supply disruptions and surging energy costs. The rate has since moderated to 2.5%.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 8: REFERENCE DATA TABLE ====== -->
+<section class="report-section" id="data-table">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">08</span>
+            <h2>Reference Data Table</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Complete WPI data for all major groups &mdash; January values, base year 2011&ndash;12=100.</p>
+        <div class="data-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>All Commodities</th>
+                        <th>Primary Articles</th>
+                        <th>Fuel &amp; Power</th>
+                        <th>Manufactured</th>
+                        <th>Food Index</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Jan 2013</td><td>108.0</td><td>113.8</td><td>108.9</td><td>105.8</td><td>111.5</td></tr>
+                    <tr><td>Jan 2014</td><td>113.6</td><td>121.2</td><td>119.9</td><td>109.5</td><td>119.6</td></tr>
+                    <tr><td>Jan 2015</td><td>110.8</td><td>120.8</td><td>94.5</td><td>110.6</td><td>124.3</td></tr>
+                    <tr><td>Jan 2016</td><td>108.0</td><td>124.3</td><td>79.8</td><td>108.0</td><td>128.4</td></tr>
+                    <tr><td>Jan 2017</td><td>112.6</td><td>126.7</td><td>93.1</td><td>111.6</td><td>133.3</td></tr>
+                    <tr><td>Jan 2018</td><td>116.0</td><td>129.9</td><td>97.5</td><td>114.9</td><td>135.6</td></tr>
+                    <tr><td>Jan 2019</td><td>119.2</td><td>133.8</td><td>99.3</td><td>118.1</td><td>138.3</td></tr>
+                    <tr><td>Jan 2020</td><td>123.4</td><td>147.2</td><td>104.7</td><td>118.8</td><td>152.2</td></tr>
+                    <tr><td>Jan 2021</td><td>126.5</td><td>144.9</td><td>100.7</td><td>125.3</td><td>151.8</td></tr>
+                    <tr><td>Jan 2022</td><td>143.8</td><td>167.5</td><td>135.3</td><td>137.2</td><td>166.3</td></tr>
+                    <tr><td>Jan 2023</td><td>150.7</td><td>174.3</td><td>155.6</td><td>141.4</td><td>171.5</td></tr>
+                    <tr><td>Jan 2024</td><td>151.2</td><td>181.4</td><td>154.9</td><td>139.7</td><td>178.1</td></tr>
+                    <tr><td>Jan 2025</td><td>155.0</td><td>189.7</td><td>152.0</td><td>143.4</td><td>191.5</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <p>Data sourced from <a href="https://www.mospi.gov.in" target="_blank">MoSPI</a> via eSankhyiki API &middot; Wholesale Price Index (Base 2011&ndash;12=100)</p>
+    <p>January values, All India, 2013 to 2025.</p>
+    <div class="footer-dashboards">
+        <a href="../india-gdp-report/">GDP</a> &middot;
+        <a href="../india-inflation-report/">CPI Inflation</a> &middot;
+        <a href="../india-employment-report/">Employment</a> &middot;
+        <a href="../india-industrial-report/">IIP</a> &middot;
+        <a href="../india-factory-report/">Factory Survey</a> &middot;
+        <strong>WPI</strong> &middot;
+        <a href="../india-energy-report/">Energy</a>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop">&uarr;</a>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#a0aec0';
+Chart.defaults.plugins.datalabels.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(8,13,24,0.95)';
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 13 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+
+const tooltipStyle = {
+    backgroundColor: 'rgba(8,13,24,0.95)',
+    titleFont: { weight: '600', size: 13 },
+    bodyFont: { size: 12 },
+    padding: 12, cornerRadius: 8,
+    borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1
+};
+const gridStyle = { color: 'rgba(255,255,255,0.04)', drawBorder: false };
+const scaleX = { grid: { display: false }, ticks: { font: { size: 11 } } };
+const scaleY = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: false };
+const scaleYZero = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: true };
+
+const doughnutLabelOpts = {
+    display: true,
+    color: '#e8edf5',
+    font: { size: 11, weight: '600' },
+    formatter: (v, ctx) => {
+        const label = ctx.chart.data.labels[ctx.dataIndex];
+        return label.length > 12 ? label.substring(0, 12) + '..' : label;
+    }
+};
+
+// ========== DATA ==========
+const years = ['2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const yearsFull = ['Jan 2013','Jan 2014','Jan 2015','Jan 2016','Jan 2017','Jan 2018','Jan 2019','Jan 2020','Jan 2021','Jan 2022','Jan 2023','Jan 2024','Jan 2025'];
+
+const wpiAll = [108.0, 113.6, 110.8, 108.0, 112.6, 116.0, 119.2, 123.4, 126.5, 143.8, 150.7, 151.2, 155.0];
+const wpiPrimary = [113.8, 121.2, 120.8, 124.3, 126.7, 129.9, 133.8, 147.2, 144.9, 167.5, 174.3, 181.4, 189.7];
+const wpiFuel = [108.9, 119.9, 94.5, 79.8, 93.1, 97.5, 99.3, 104.7, 100.7, 135.3, 155.6, 154.9, 152.0];
+const wpiMfg = [105.8, 109.5, 110.6, 108.0, 111.6, 114.9, 118.1, 118.8, 125.3, 137.2, 141.4, 139.7, 143.4];
+const wpiFood = [111.5, 119.6, 124.3, 128.4, 133.3, 135.6, 138.3, 152.2, 151.8, 166.3, 171.5, 178.1, 191.5];
+
+const foodYoY = [null, 7.3, 3.9, 3.3, 3.8, 1.7, 2.0, 10.0, -0.3, 9.6, 3.1, 3.8, 7.5];
+const allYoY = [null, 5.2, -2.5, -2.5, 4.3, 3.0, 2.8, 3.5, 2.5, 13.7, 4.8, 0.3, 2.5];
+
+// ========== CHART 1: WPI All Commodities Trend (Line with area fill) ==========
+new Chart(document.getElementById('chartWpiTrend'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'WPI All Commodities',
+            data: wpiAll,
+            borderColor: '#eab308',
+            backgroundColor: 'rgba(234,179,8,0.10)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#eab308',
+            borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, title: { display: true, text: 'WPI Index (Base 2011-12=100)', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'top', color: '#facc15', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) }
+        }
+    }
+});
+
+// ========== CHART 2: Major Group Indices (Multi-line) ==========
+new Chart(document.getElementById('chartMajorGroups'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'All Commodities', data: wpiAll, borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.05)', fill: false, tension: 0.35, pointRadius: 3, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Primary Articles', data: wpiPrimary, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.05)', fill: false, tension: 0.35, pointRadius: 3, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Fuel & Power', data: wpiFuel, borderColor: '#e05252', backgroundColor: 'rgba(224,82,82,0.05)', fill: false, tension: 0.35, pointRadius: 3, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Manufactured Products', data: wpiMfg, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.05)', fill: false, tension: 0.35, pointRadius: 3, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Food Index', data: wpiFood, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.05)', fill: false, tension: 0.35, pointRadius: 3, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, title: { display: true, text: 'WPI Index', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle
+        }
+    }
+});
+
+// ========== CHART 3a: WPI Weight Structure (Doughnut) ==========
+new Chart(document.getElementById('chartWeights'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Primary Articles', 'Fuel & Power', 'Manufactured Products'],
+        datasets: [{
+            data: [22.62, 13.15, 64.23],
+            backgroundColor: ['rgba(96,165,250,0.7)', 'rgba(224,82,82,0.7)', 'rgba(167,139,250,0.7)'],
+            borderColor: ['#60a5fa', '#e05252', '#a78bfa'],
+            borderWidth: 2,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.3,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11 } } },
+            tooltip: tooltipStyle,
+            datalabels: {
+                display: true,
+                color: '#e8edf5',
+                font: { size: 12, weight: '600' },
+                formatter: (v) => v.toFixed(1) + '%'
+            }
+        }
+    }
+});
+
+// ========== CHART 3b: Index Divergence (Doughnut) ==========
+new Chart(document.getElementById('chartDivergence'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Primary Articles (189.7)', 'Fuel & Power (152.0)', 'Manufactured Products (143.4)'],
+        datasets: [{
+            data: [189.7, 152.0, 143.4],
+            backgroundColor: ['rgba(96,165,250,0.7)', 'rgba(224,82,82,0.7)', 'rgba(167,139,250,0.7)'],
+            borderColor: ['#60a5fa', '#e05252', '#a78bfa'],
+            borderWidth: 2,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.3,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11 } } },
+            tooltip: tooltipStyle,
+            datalabels: {
+                display: true,
+                color: '#e8edf5',
+                font: { size: 12, weight: '600' },
+                formatter: (v) => v.toFixed(1)
+            }
+        }
+    }
+});
+
+// ========== CHART 4: Food Price Story (Line + Bar overlay) ==========
+new Chart(document.getElementById('chartFood'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                type: 'line',
+                label: 'Food Index',
+                data: wpiFood,
+                borderColor: '#34d399',
+                backgroundColor: 'rgba(52,211,153,0.08)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#34d399',
+                borderWidth: 2.5,
+                yAxisID: 'y',
+                order: 1
+            },
+            {
+                type: 'bar',
+                label: 'YoY Growth (%)',
+                data: foodYoY,
+                backgroundColor: foodYoY.map(v => v === null ? 'transparent' : v < 0 ? 'rgba(224,82,82,0.6)' : 'rgba(234,179,8,0.5)'),
+                borderColor: foodYoY.map(v => v === null ? 'transparent' : v < 0 ? '#e05252' : '#eab308'),
+                borderWidth: 1,
+                borderRadius: 4,
+                yAxisID: 'y1',
+                order: 2
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, position: 'left', title: { display: true, text: 'Food Index', color: '#6b7a90', font: { size: 11 } } },
+            y1: { ...scaleYZero, position: 'right', title: { display: true, text: 'YoY Growth (%)', color: '#6b7a90', font: { size: 11 } }, grid: { display: false } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle
+        }
+    }
+});
+
+// ========== CHART 5: Fuel & Power Volatility (Line) ==========
+new Chart(document.getElementById('chartFuel'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Fuel & Power',
+            data: wpiFuel,
+            borderColor: '#e05252',
+            backgroundColor: 'rgba(224,82,82,0.10)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#e05252',
+            borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, title: { display: true, text: 'Fuel & Power Index', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'top', color: '#e05252', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) }
+        }
+    }
+});
+
+// ========== CHART 6: Primary vs Manufactured (Dual Line) ==========
+new Chart(document.getElementById('chartPrimaryMfg'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Primary Articles', data: wpiPrimary, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Manufactured Products', data: wpiMfg, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, title: { display: true, text: 'WPI Index', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle
+        }
+    }
+});
+
+// ========== CHART 7: YoY Inflation Rates (Bar) ==========
+new Chart(document.getElementById('chartInflation'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'YoY WPI Inflation (%)',
+            data: allYoY,
+            backgroundColor: allYoY.map(v => v === null ? 'transparent' : v < 0 ? 'rgba(224,82,82,0.6)' : 'rgba(234,179,8,0.55)'),
+            borderColor: allYoY.map(v => v === null ? 'transparent' : v < 0 ? '#e05252' : '#eab308'),
+            borderWidth: 1,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, beginAtZero: true, title: { display: true, text: 'YoY Inflation (%)', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: tooltipStyle,
+            datalabels: {
+                display: true,
+                anchor: (ctx) => ctx.dataset.data[ctx.dataIndex] < 0 ? 'start' : 'end',
+                align: (ctx) => ctx.dataset.data[ctx.dataIndex] < 0 ? 'bottom' : 'top',
+                color: (ctx) => ctx.dataset.data[ctx.dataIndex] < 0 ? '#e05252' : '#facc15',
+                font: { size: 10, weight: '600' },
+                formatter: v => v === null ? '' : v.toFixed(1) + '%'
+            }
+        }
+    }
+});
+
+// ========== SCROLL ANIMATIONS & NAV ==========
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backBtn = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section, .social-section, #highlights');
+const navLinksEl = document.getElementById('navLinks');
+const navLinks = navLinksEl ? navLinksEl.querySelectorAll('a') : [];
+
+window.addEventListener('scroll', () => {
+    const st = window.scrollY;
+    nav.classList.toggle('scrolled', st > 40);
+    backBtn.classList.toggle('visible', st > 600);
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    navProgress.style.width = h > 0 ? (st / h * 100) + '%' : '0%';
+
+    let current = '';
+    sections.forEach(s => {
+        if (s.offsetTop - 120 <= st) current = s.id;
+    });
+    navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+}, { passive: true });
+</script>
+</body>
+</html>

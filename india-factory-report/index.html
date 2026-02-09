@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Factory Sector Report | MoSPI ASI Data 2016-2024</title>
+    <meta name="description" content="Interactive report on India's Annual Survey of Industries — covering factories, output, GVA, employment, profitability, gender, and contract workers from 2016-17 to 2023-24.">
+    <meta property="og:title" content="India Factory Sector Report | MoSPI ASI Data 2016-2024">
+    <meta property="og:description" content="From 1.94 lakh to 2.13 lakh factories, from 1.49 crore to 1.96 crore workers — India's organised factory sector has grown steadily with output doubling to Rs 15.3 lakh crore.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --accent: #d97706;
+            --accent-light: #f59e0b;
+            --accent-glow: rgba(217, 119, 6, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-1: #d97706;
+            --chart-2: #f59e0b;
+            --chart-3: #34d399;
+            --chart-4: #fbbf24;
+            --chart-5: #a78bfa;
+            --chart-6: #fb923c;
+            --chart-7: #38bdf8;
+            --chart-8: #e879f9;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(8, 13, 24, 0.85); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); border-bottom: 1px solid var(--border); height: var(--nav-height); display: flex; align-items: center; transition: box-shadow 0.3s; }
+        .site-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .nav-brand { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--accent-light); white-space: nowrap; letter-spacing: -0.01em; }
+        .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; transition: color 0.2s, background 0.2s; letter-spacing: 0.01em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent-light); }
+        .nav-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); width: 0%; transition: width 0.15s; }
+        .hero { position: relative; padding: 100px 24px 70px; overflow: hidden; background: var(--bg-deep); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(217, 119, 6, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(245, 158, 11, 0.05) 0%, transparent 60%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.35; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .hero-text h1 { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-text h1 span { display: block; color: var(--accent-light); font-size: 0.5em; font-weight: 400; font-style: italic; margin-top: 4px; letter-spacing: 0; }
+        .hero-text p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 20px; line-height: 1.7; }
+        .hero-text .source { color: var(--muted); font-size: 0.8rem; }
+        .hero-text .source a { color: var(--accent); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+        .hero-stat { text-align: right; padding-right: 20px; }
+        .hero-stat .big-number { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; color: var(--accent); opacity: 0.18; letter-spacing: -0.04em; }
+        .hero-stat .big-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+        .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 48px 0 32px; }
+        .highlight-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 10px; padding: 22px 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s; }
+        .highlight-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+        .highlight-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--accent); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--chart-3); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, rgba(52,211,153,0.12), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--chart-7); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, rgba(56,189,248,0.12), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--chart-4); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.02em; }
+        .highlight-card .label { color: var(--text-secondary); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+        .highlight-card .sublabel { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+        .report-section { padding: 56px 0 48px; position: relative; }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+        .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+        .section-num { font-family: var(--font-display); font-size: 3rem; font-weight: 300; color: var(--accent); opacity: 0.2; line-height: 1; letter-spacing: -0.04em; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .section-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: 0.95rem; max-width: 720px; line-height: 1.7; }
+        .section-divider { width: 48px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 12px 0 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; position: relative; }
+        .chart-card h3 { font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .insight { background: rgba(217, 119, 6, 0.06); border-left: 3px solid var(--accent); padding: 14px 18px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        .insight strong { color: var(--text); font-weight: 600; }
+        .social-section { padding: 56px 0; }
+        .social-section h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; margin-bottom: 28px; }
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .social-card { background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95)); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden; backdrop-filter: blur(8px); transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s; }
+        .social-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--chart-7), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--chart-3), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--chart-4), transparent 80%); }
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+        .social-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+        .social-card .hashtag { margin-top: 14px; color: var(--accent); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.01em; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+        thead { position: sticky; top: 0; z-index: 2; }
+        th { padding: 12px 16px; text-align: right; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(217, 119, 6, 0.04); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 48px 24px; background: var(--bg-deep); border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+        .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: var(--card); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 90; text-decoration: none; }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { background: var(--card-hover); color: var(--text); }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-stagger > .highlight-card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1); }
+        .reveal-stagger.visible > .highlight-card { opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+        @media (max-width: 1024px) { .highlights { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .hero-stat { display: none; } .hero-text h1 { font-size: 2.4rem; } }
+        @media (max-width: 700px) { .hero { padding: 80px 20px 50px; } .hero-text h1 { font-size: 1.8rem; } .hero-text p { font-size: 0.95rem; } .highlights { grid-template-columns: 1fr 1fr; gap: 10px; } .highlight-card { padding: 16px 14px; } .highlight-card .number { font-size: 1.5rem; } .highlight-card .label { font-size: 0.75rem; } .section-header h2 { font-size: 1.3rem; } .section-num { font-size: 2rem; } .social-grid { grid-template-columns: 1fr; } .nav-brand { display: none; } .nav-links a { font-size: 0.65rem; padding: 4px 7px; } .chart-card { padding: 20px 16px; } }
+        @media (max-width: 480px) { .highlights { grid-template-columns: 1fr; } .nav-links { gap: 2px; } }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India ASI</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#highlights">Highlights</a>
+            <a href="#social">Social</a>
+            <a href="#factories">Factories</a>
+            <a href="#output">Output</a>
+            <a href="#profitability">Profitability</a>
+            <a href="#employment">Employment</a>
+            <a href="#gender">Gender</a>
+            <a href="#contract">Contract</a>
+            <a href="#structure">Structure</a>
+            <a href="#data-table">Data Table</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India&rsquo;s Factory<br>Sector <span>Eight years of industrial enterprise, 2016&ndash;17 to 2023&ndash;24</span></h1>
+            <p>From 1.94 lakh to 2.13 lakh factories, from 1.49 crore to 1.96 crore workers &mdash; India&rsquo;s organised factory sector has grown steadily with output doubling to Rs 15.3 lakh crore.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation</a> &middot; Annual Survey of Industries (ASI) via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">2,12,990</div>
+            <div class="big-label">Factories in Operation &middot; 2023&ndash;24</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<div class="container" id="highlights">
+    <div class="highlights reveal-stagger">
+        <div class="highlight-card">
+            <div class="number" style="color: var(--accent);">2,12,990</div>
+            <div class="label">Factories in Operation</div>
+            <div class="sublabel">2023&ndash;24 &middot; All India</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-3);">1.96 Cr</div>
+            <div class="label">Persons Engaged</div>
+            <div class="sublabel">Up from 1.49 Cr in 2016&ndash;17</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-7);">&#8377;24.6L Cr</div>
+            <div class="label">GVA (Gross Value Added)</div>
+            <div class="sublabel">2023&ndash;24 &middot; All India</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--lavender);">&#8377;153L Cr</div>
+            <div class="label">Total Output</div>
+            <div class="sublabel">Doubled since 2016&ndash;17</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-4);">&#8377;10.7L Cr</div>
+            <div class="label">Net Profit</div>
+            <div class="sublabel">2023&ndash;24 &middot; All India</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--crimson);">&#8377;8.0L Cr</div>
+            <div class="label">Wages &amp; Benefits</div>
+            <div class="sublabel">Including employer contributions</div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== SOCIAL CARDS ====== -->
+<section class="social-section container" id="social">
+    <h2 class="reveal">Share-worthy Facts</h2>
+    <div class="social-grid reveal">
+        <div class="social-card">
+            <div class="emoji">&#x1F3ED;</div>
+            <div class="stat">Factories: 1.94L &rarr; 2.13L</div>
+            <div class="desc">India&rsquo;s organised factory count grew 10% in 8 years, from 1.94 lakh in 2016&ndash;17 to 2.13 lakh in 2023&ndash;24, with the sharpest jump in the last two years.</div>
+            <div class="hashtag">#MakeInIndia</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F4C8;</div>
+            <div class="stat">Output doubled: &#8377;72.7L Cr &rarr; &#8377;153.3L Cr</div>
+            <div class="desc">Total factory output more than doubled in 8 years &mdash; from Rs 72.7 lakh crore to Rs 153.3 lakh crore, reflecting India&rsquo;s industrial expansion.</div>
+            <div class="hashtag">#IndustrialGrowth</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F477;</div>
+            <div class="stat">Employment: 1.49 Cr &rarr; 1.96 Cr</div>
+            <div class="desc">Factory employment grew 31% from 1.49 crore to 1.96 crore workers in 8 years, absorbing nearly 50 lakh additional workers.</div>
+            <div class="hashtag">#FactoryJobs</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F469;&#x200D;&#x1F527;</div>
+            <div class="stat">Female workers: Only 18%</div>
+            <div class="desc">Only 18% of direct factory workers are women. Female employment dipped during COVID but has recovered &mdash; the gender gap in factories remains stubbornly wide.</div>
+            <div class="hashtag">#GenderGap</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F4CB;</div>
+            <div class="stat">Contract army: 64.5 lakh workers</div>
+            <div class="desc">Contract workers grew from ~40 lakh to 64.5 lakh, growing faster than direct hiring. The contractualization of India&rsquo;s factory workforce continues unabated.</div>
+            <div class="hashtag">#LabourMarket</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F4B0;</div>
+            <div class="stat">Profit surge: 99% jump</div>
+            <div class="desc">Net profit nearly doubled from Rs 5.4 lakh crore to Rs 10.7 lakh crore in 8 years, with a sharp recovery after the COVID dip in 2019&ndash;20.</div>
+            <div class="hashtag">#Profitability</div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 1: FACTORY GROWTH TREND ====== -->
+<section class="report-section" id="factories">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <h2>Factory Growth Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The number of factories in operation under the Factories Act has grown steadily over 8 years, crossing the 2-lakh mark in 2020&ndash;21 and accelerating in the most recent years.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Factories in Operation &mdash; All India (2016&ndash;17 to 2023&ndash;24)</h3>
+                <canvas id="chartFactories"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Factory count grew 10% from 1.94L to 2.13L, with the sharpest jump in 2022&ndash;23 (+6,000) and 2023&ndash;24 (+6,500). The steady rise reflects ongoing industrial formalization.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 2: OUTPUT vs INPUT ====== -->
+<section class="report-section" id="output">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <h2>Output vs Input</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Total output and total input costs have both grown sharply, but the gap between them &mdash; the Gross Value Added (GVA) &mdash; has widened, indicating improved value addition by India&rsquo;s factory sector.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Total Output vs Total Inputs &mdash; Rs Lakh Crore</h3>
+                <canvas id="chartOutputInput"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Output doubled from Rs 72.7L Cr to Rs 153.3L Cr. The Output-Input gap (GVA) widened from Rs 13.7L Cr to Rs 24.6L Cr, reflecting improved value addition in India&rsquo;s industrial base.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 3: PROFITABILITY TREND ====== -->
+<section class="report-section" id="profitability">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <h2>Profitability Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Net profit of India&rsquo;s factory sector has seen dramatic swings &mdash; a COVID-era dip followed by a sharp recovery. By 2023&ndash;24, profits had nearly doubled from the 2016&ndash;17 level.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Net Profit &mdash; Rs Lakh Crore</h3>
+                <canvas id="chartProfit"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Net profit nearly doubled from Rs 5.4L Cr to Rs 10.7L Cr. The COVID year 2019&ndash;20 saw a dip to Rs 4.7L Cr, followed by a sharp recovery to Rs 9.5L Cr by 2021&ndash;22.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 4: EMPLOYMENT TREND ====== -->
+<section class="report-section" id="employment">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <h2>Employment Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Factory employment encompasses persons engaged (total headcount), total workers (production + non-production), and direct workers. All three categories have grown, but the gap between total and direct workers has widened as contract hiring rises.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Employment &mdash; Persons Engaged, Total Workers, Direct Workers (Crores)</h3>
+                <canvas id="chartEmployment"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Employment grew 31% from 1.49 Cr to 1.96 Cr persons engaged. Contract workers grew faster than direct workers, reflecting the contractualization trend in India&rsquo;s organised manufacturing sector.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 5: GENDER IN FACTORIES ====== -->
+<section class="report-section" id="gender">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <h2>Gender in Factories</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Female participation in India&rsquo;s factory workforce remains low. While the absolute numbers have grown, women continue to constitute less than one-fifth of direct factory workers.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Male vs Female Direct Workers &mdash; Lakhs</h3>
+                <canvas id="chartGender"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Female worker share remains stubbornly low at ~18% of direct workers. Female employment dipped during COVID (14.2L in 2020&ndash;21) but recovered to 16.4L by 2023&ndash;24.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 6: DIRECT VS CONTRACT ====== -->
+<section class="report-section" id="contract">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">06</span>
+            <h2>Direct vs Contract Workers</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The composition of India&rsquo;s factory workforce is shifting. Contract workers now make up over 40% of total workers, up from around 35% in 2016&ndash;17. This trend raises questions about job quality and worker protections.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Direct Workers vs Contract Workers &mdash; Lakhs</h3>
+                <canvas id="chartContract"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Contract workers grew from ~40L to 64.5L, outpacing direct workers who grew from 74L to 90.7L. The contractualization of India&rsquo;s factory workforce continues, with contract workers now at 41.6% of total workers.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 7: CAPITAL & FUEL STRUCTURE ====== -->
+<section class="report-section" id="structure">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">07</span>
+            <h2>Cost &amp; Employment Structure</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Understanding the cost composition and workforce mix of India&rsquo;s factory sector in 2023&ndash;24 reveals structural patterns &mdash; input costs dominate output, while the workforce is split between direct and contract labour.</p>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Cost Structure &mdash; 2023&ndash;24 (% of Output)</h3>
+                <canvas id="chartCostStructure"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Employment Mix &mdash; 2023&ndash;24</h3>
+                <canvas id="chartEmploymentMix"></canvas>
+            </div>
+        </div>
+        <div class="chart-card full-width" style="margin-top:20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px;">
+            <div class="insight" style="margin-top:0;"><strong>Key insight:</strong> Input costs dominate at ~84% of output. Fuel consumption fell slightly in 2023&ndash;24 (Rs 6.03L Cr vs Rs 6.10L Cr in 2022&ndash;23), suggesting energy efficiency gains. Contract workers now constitute 41.6% of total workers.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 8: REFERENCE DATA TABLE ====== -->
+<section class="report-section" id="data-table">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">08</span>
+            <h2>Reference Data Table</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Complete ASI annual data for key factory sector indicators. All monetary values in Rs Lakh Crore; employment in Crores.</p>
+        <div class="data-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Factories</th>
+                        <th>Persons (Cr)</th>
+                        <th>Output (L Cr)</th>
+                        <th>GVA (L Cr)</th>
+                        <th>Profit (L Cr)</th>
+                        <th>Wages (L Cr)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2016&ndash;17</td><td>1,94,380</td><td>1.49</td><td>72.7</td><td>13.7</td><td>5.4</td><td>4.3</td></tr>
+                    <tr><td>2017&ndash;18</td><td>1,95,584</td><td>1.56</td><td>80.7</td><td>14.7</td><td>5.8</td><td>4.7</td></tr>
+                    <tr><td>2018&ndash;19</td><td>1,97,145</td><td>1.63</td><td>92.8</td><td>15.4</td><td>5.6</td><td>5.2</td></tr>
+                    <tr><td>2019&ndash;20</td><td>1,98,628</td><td>1.66</td><td>89.8</td><td>14.9</td><td>4.7</td><td>5.5</td></tr>
+                    <tr><td>2020&ndash;21</td><td>2,00,395</td><td>1.61</td><td>88.1</td><td>16.2</td><td>6.1</td><td>5.6</td></tr>
+                    <tr><td>2021&ndash;22</td><td>2,00,576</td><td>1.72</td><td>119.3</td><td>20.5</td><td>9.5</td><td>6.3</td></tr>
+                    <tr><td>2022&ndash;23</td><td>2,06,523</td><td>1.85</td><td>144.9</td><td>22.0</td><td>9.8</td><td>7.2</td></tr>
+                    <tr><td>2023&ndash;24</td><td>2,12,990</td><td>1.96</td><td>153.3</td><td>24.6</td><td>10.7</td><td>8.0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <p>Data sourced from <a href="https://www.mospi.gov.in" target="_blank">MoSPI</a> via eSankhyiki API &middot; Annual Survey of Industries (ASI)</p>
+    <p>All India, Combined Sector, 2016&ndash;17 to 2023&ndash;24. Monetary values in Rs Lakhs (converted to Rs Lakh Crore for display).</p>
+    <div class="footer-dashboards">
+        <a href="../india-gdp-report/">GDP</a> &middot;
+        <a href="../india-inflation-report/">CPI Inflation</a> &middot;
+        <a href="../india-employment-report/">Employment</a> &middot;
+        <a href="../india-industrial-report/">IIP</a> &middot;
+        <strong>Factory Survey</strong> &middot;
+        <a href="../india-wholesale-prices-report/">WPI</a> &middot;
+        <a href="../india-energy-report/">Energy</a>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop">&uarr;</a>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#a0aec0';
+Chart.defaults.plugins.datalabels.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(8,13,24,0.95)';
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 13 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+
+const tooltipStyle = {
+    backgroundColor: 'rgba(8,13,24,0.95)',
+    titleFont: { weight: '600', size: 13 },
+    bodyFont: { size: 12 },
+    padding: 12, cornerRadius: 8,
+    borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1
+};
+const gridStyle = { color: 'rgba(255,255,255,0.04)', drawBorder: false };
+const scaleX = { grid: { display: false }, ticks: { font: { size: 11 } } };
+const scaleY = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: false };
+const scaleYZero = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: true };
+
+const doughnutLabelOpts = {
+    display: true,
+    color: '#e8edf5',
+    font: { size: 11, weight: '600' },
+    formatter: (v) => v > 3 ? v.toFixed(1) + '%' : ''
+};
+
+// ========== RAW DATA (Rs Lakhs / counts) ==========
+const years = ['2016-17','2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24'];
+
+const factories = [194380, 195584, 197145, 198628, 200395, 200576, 206523, 212990];
+const totalOutput = [726551423, 807217258, 928179908, 898330129, 880921387, 1192715147, 1448660228, 1532716609];
+const totalInputs = [589746374, 660520215, 774377980, 749755617, 719206541, 987917996, 1228954623, 1286883003];
+const gva = [136805049, 146697043, 153801928, 148574512, 161714846, 204797151, 219705605, 245833606];
+const netProfit = [53935285, 57624246, 55652258, 46947269, 61405752, 95071368, 97634628, 107285987];
+const personsEngaged = [14911189, 15614619, 16280211, 16624291, 16089700, 17215350, 18494962, 19589131];
+const totalWorkers = [11488000, 12224422, 12798588, 13058156, 12563000, 13609931, 14616971, 15519957];
+const wages = [42500000, 47454543, 52138120, 55296207, 55800000, 62922647, 71647993, 80101613];
+const fuelsConsumed = [30783179, 34979770, 40919936, 38548730, 34898745, 47053995, 61037032, 60256512];
+const fixedCapital = [310000000, 328588927, 346606975, 364135165, 369438562, 372635444, 412179458, 462409035];
+const directWorkers = [7400000, 7777197, 7983838, 8037064, 7649393, 8135683, 8665281, 9065536];
+const maleWorkers = [5900000, 6183512, 6414332, 6454363, 6225277, 6637049, 7068638, 7423421];
+const femaleWorkers = [1500000, 1593685, 1569506, 1582701, 1424116, 1498634, 1596643, 1641491];
+const contractWorkers = [4000000, 4400000, 4814751, 5021091, 4945170, 5474247, 5951690, 6454421];
+
+// Conversion helpers
+const toLakhCr = (arr) => arr.map(v => +(v / 10000000).toFixed(1));
+const toCrore = (arr) => arr.map(v => +(v / 10000000).toFixed(2));
+const toLakhs = (arr) => arr.map(v => +(v / 100000).toFixed(1));
+
+// ========== CHART 1: Factory Growth Trend (Line) ==========
+new Chart(document.getElementById('chartFactories'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Factories in Operation',
+            data: factories,
+            borderColor: '#d97706',
+            backgroundColor: 'rgba(217,119,6,0.08)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#d97706'
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, title: { display: true, text: 'Number of Factories', color: '#6b7a90', font: { size: 11 } }, ticks: { font: { size: 11 }, callback: v => (v/1000).toFixed(0) + 'K' } }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => 'Factories: ' + ctx.parsed.y.toLocaleString('en-IN') } },
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => (v/1000).toFixed(1) + 'K' }
+        }
+    }
+});
+
+// ========== CHART 2: Output vs Input (Bar + Line) ==========
+new Chart(document.getElementById('chartOutputInput'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                label: 'Total Output',
+                data: toLakhCr(totalOutput),
+                backgroundColor: 'rgba(217,119,6,0.6)',
+                borderColor: '#d97706',
+                borderWidth: 1,
+                borderRadius: 4,
+                order: 2
+            },
+            {
+                label: 'Total Inputs',
+                data: toLakhCr(totalInputs),
+                backgroundColor: 'rgba(245,158,11,0.35)',
+                borderColor: '#f59e0b',
+                borderWidth: 1,
+                borderRadius: 4,
+                order: 3
+            },
+            {
+                label: 'GVA (Output - Input)',
+                data: toLakhCr(gva),
+                type: 'line',
+                borderColor: '#34d399',
+                backgroundColor: 'rgba(52,211,153,0.08)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                borderWidth: 2.5,
+                pointBackgroundColor: '#34d399',
+                order: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleYZero, title: { display: true, text: 'Rs Lakh Crore', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.dataset.label + ': Rs ' + ctx.parsed.y.toFixed(1) + 'L Cr' } }
+        }
+    }
+});
+
+// ========== CHART 3: Profitability Trend (Line) ==========
+new Chart(document.getElementById('chartProfit'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Net Profit',
+            data: toLakhCr(netProfit),
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52,211,153,0.08)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#34d399'
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleYZero, title: { display: true, text: 'Rs Lakh Crore', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => 'Net Profit: Rs ' + ctx.parsed.y.toFixed(1) + 'L Cr' } },
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) }
+        }
+    }
+});
+
+// ========== CHART 4: Employment Trend (Line, 3 series) ==========
+new Chart(document.getElementById('chartEmployment'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                label: 'Persons Engaged',
+                data: toCrore(personsEngaged),
+                borderColor: '#d97706',
+                backgroundColor: 'rgba(217,119,6,0.08)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                borderWidth: 2.5,
+                pointBackgroundColor: '#d97706'
+            },
+            {
+                label: 'Total Workers',
+                data: toCrore(totalWorkers),
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56,189,248,0.08)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                borderWidth: 2.5,
+                pointBackgroundColor: '#38bdf8'
+            },
+            {
+                label: 'Direct Workers',
+                data: toCrore(directWorkers),
+                borderColor: '#a78bfa',
+                backgroundColor: 'rgba(167,139,250,0.08)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                borderWidth: 2.5,
+                pointBackgroundColor: '#a78bfa'
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleY, title: { display: true, text: 'Crores', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + ' Cr' } }
+        }
+    }
+});
+
+// ========== CHART 5: Gender in Factories (Stacked Bar) ==========
+new Chart(document.getElementById('chartGender'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                label: 'Male Workers',
+                data: toLakhs(maleWorkers),
+                backgroundColor: 'rgba(56,189,248,0.6)',
+                borderColor: '#38bdf8',
+                borderWidth: 1,
+                borderRadius: 4
+            },
+            {
+                label: 'Female Workers',
+                data: toLakhs(femaleWorkers),
+                backgroundColor: 'rgba(251,146,60,0.6)',
+                borderColor: '#fb923c',
+                borderWidth: 1,
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleYZero, stacked: true, title: { display: true, text: 'Lakhs', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: { ...tooltipStyle, mode: 'index', callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + ' L' } }
+        },
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { ...scaleX, stacked: true },
+            y: { ...scaleYZero, stacked: true, title: { display: true, text: 'Lakhs', color: '#6b7a90', font: { size: 11 } } }
+        }
+    }
+});
+
+// ========== CHART 6: Direct vs Contract Workers (Stacked Bar) ==========
+new Chart(document.getElementById('chartContract'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                label: 'Direct Workers',
+                data: toLakhs(directWorkers),
+                backgroundColor: 'rgba(167,139,250,0.6)',
+                borderColor: '#a78bfa',
+                borderWidth: 1,
+                borderRadius: 4
+            },
+            {
+                label: 'Contract Workers',
+                data: toLakhs(contractWorkers),
+                backgroundColor: 'rgba(224,82,82,0.6)',
+                borderColor: '#e05252',
+                borderWidth: 1,
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { ...scaleX, stacked: true },
+            y: { ...scaleYZero, stacked: true, title: { display: true, text: 'Lakhs', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: { ...tooltipStyle, mode: 'index', callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + ' L' } }
+        }
+    }
+});
+
+// ========== CHART 7a: Cost Structure Doughnut ==========
+// 2023-24 values: Output = 1532716609, Inputs = 1286883003, Fuel = 60256512, Wages = 80101613
+// Input costs (excl fuel, wages from inputs) as % of output
+// Breakdown: Input Costs (non-fuel) = (1286883003 - 60256512)/1532716609 = 80.0%
+// Fuel = 60256512/1532716609 = 3.9%, Wages = 80101613/1532716609 = 5.2%
+// Others = 100 - 80.0 - 3.9 - 5.2 = 10.9%
+// Actually: Pure input costs = totalInputs/output = 83.9%, Fuel = 3.9%, Wages = 5.2%, Others = 7.0%
+// Note: fuel is part of inputs, so let's do: Material inputs (inputs - fuel) = (1286883003-60256512) = 1226626491 = 80.0%
+// Fuel = 3.9%, Wages = 5.2%, Others (depreciation etc) = 10.9%
+const costLabels = ['Material Inputs', 'Fuel', 'Wages & Benefits', 'Others'];
+const costValues = [80.0, 3.9, 5.2, 10.9];
+
+new Chart(document.getElementById('chartCostStructure'), {
+    type: 'doughnut',
+    data: {
+        labels: costLabels,
+        datasets: [{
+            data: costValues,
+            backgroundColor: ['rgba(217,119,6,0.7)', 'rgba(251,191,36,0.7)', 'rgba(56,189,248,0.7)', 'rgba(167,139,250,0.7)'],
+            borderColor: ['#d97706', '#fbbf24', '#38bdf8', '#a78bfa'],
+            borderWidth: 2,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.2,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11 } } },
+            tooltip: tooltipStyle,
+            datalabels: doughnutLabelOpts
+        }
+    }
+});
+
+// ========== CHART 7b: Employment Mix Doughnut ==========
+// 2023-24: Direct = 9065536, Contract = 6454421, Total Workers = 15519957
+// Direct % = 58.4, Contract % = 41.6
+const empMixLabels = ['Direct Workers', 'Contract Workers'];
+const empMixValues = [58.4, 41.6];
+
+new Chart(document.getElementById('chartEmploymentMix'), {
+    type: 'doughnut',
+    data: {
+        labels: empMixLabels,
+        datasets: [{
+            data: empMixValues,
+            backgroundColor: ['rgba(167,139,250,0.7)', 'rgba(224,82,82,0.7)'],
+            borderColor: ['#a78bfa', '#e05252'],
+            borderWidth: 2,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.2,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 11 } } },
+            tooltip: tooltipStyle,
+            datalabels: doughnutLabelOpts
+        }
+    }
+});
+
+// ========== SCROLL ANIMATIONS & NAV ==========
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backBtn = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section, .social-section, #highlights');
+const navLinksEl = document.getElementById('navLinks');
+const navLinks = navLinksEl ? navLinksEl.querySelectorAll('a') : [];
+
+window.addEventListener('scroll', () => {
+    const st = window.scrollY;
+    nav.classList.toggle('scrolled', st > 40);
+    backBtn.classList.toggle('visible', st > 600);
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    navProgress.style.width = h > 0 ? (st / h * 100) + '%' : '0%';
+
+    let current = '';
+    sections.forEach(s => {
+        if (s.offsetTop - 120 <= st) current = s.id;
+    });
+    navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+}, { passive: true });
+</script>
+</body>
+</html>

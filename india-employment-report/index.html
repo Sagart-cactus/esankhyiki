@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India Employment & Labour Report | MoSPI PLFS Data 2017-2024</title>
+    <meta name="description" content="Interactive report on India's Periodic Labour Force Survey — covering unemployment rate, LFPR, WPR, youth employment, gender gap, education, and wage trends from 2017-18 to 2023-24.">
+    <meta property="og:title" content="India Employment & Labour Report | MoSPI PLFS Data 2017-2024">
+    <meta property="og:description" content="From 6% unemployment in 2017-18 to 3.2% in 2023-24 — India's labour market has seen a remarkable turnaround. Explore the PLFS story through interactive charts.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080d18;
+            --bg: #0c1222;
+            --bg-alt: #0f1729;
+            --card: #141e30;
+            --card-hover: #182440;
+            --border: rgba(255,255,255,0.06);
+            --border-light: rgba(255,255,255,0.1);
+            --text: #e8edf5;
+            --text-secondary: #a0aec0;
+            --muted: #6b7a90;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --teal: #2dd4a8;
+            --teal-glow: rgba(45, 212, 168, 0.12);
+            --crimson: #e05252;
+            --crimson-glow: rgba(224, 82, 82, 0.12);
+            --slate-blue: #5b7bb5;
+            --lavender: #8b7ec8;
+            --chart-1: #3b82f6;
+            --chart-2: #60a5fa;
+            --chart-3: #34d399;
+            --chart-4: #fbbf24;
+            --chart-5: #a78bfa;
+            --chart-6: #fb923c;
+            --chart-7: #38bdf8;
+            --chart-8: #e879f9;
+            --chart-grid: rgba(255,255,255,0.04);
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --nav-height: 52px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-height) + 20px); }
+        body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+        .site-nav { position: sticky; top: 0; z-index: 100; background: rgba(8, 13, 24, 0.85); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4); border-bottom: 1px solid var(--border); height: var(--nav-height); display: flex; align-items: center; transition: box-shadow 0.3s; }
+        .site-nav.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .nav-brand { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--accent-light); white-space: nowrap; letter-spacing: -0.01em; }
+        .nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 0; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; transition: color 0.2s, background 0.2s; letter-spacing: 0.01em; text-transform: uppercase; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent-light); }
+        .nav-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--chart-2)); width: 0%; transition: width 0.15s; }
+        .hero { position: relative; padding: 100px 24px 70px; overflow: hidden; background: var(--bg-deep); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(96, 165, 250, 0.05) 0%, transparent 60%); pointer-events: none; }
+        .hero::after { content: ''; position: absolute; inset: 0; opacity: 0.35; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .hero-text h1 { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1.1; color: var(--text); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .hero-text h1 span { display: block; color: var(--accent-light); font-size: 0.5em; font-weight: 400; font-style: italic; margin-top: 4px; letter-spacing: 0; }
+        .hero-text p { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 20px; line-height: 1.7; }
+        .hero-text .source { color: var(--muted); font-size: 0.8rem; }
+        .hero-text .source a { color: var(--accent); text-decoration: none; }
+        .hero-text .source a:hover { text-decoration: underline; }
+        .hero-stat { text-align: right; padding-right: 20px; }
+        .hero-stat .big-number { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; color: var(--accent); opacity: 0.18; letter-spacing: -0.04em; }
+        .hero-stat .big-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+        .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 48px 0 32px; }
+        .highlight-card { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 10px; padding: 22px 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(.2,.8,.4,1), box-shadow 0.25s; }
+        .highlight-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 80px; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+        .highlight-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .highlight-card:hover::after { opacity: 1; }
+        .highlight-card:nth-child(1) { border-top-color: var(--accent); }
+        .highlight-card:nth-child(1)::after { background: radial-gradient(ellipse at top, var(--accent-glow), transparent 70%); }
+        .highlight-card:nth-child(2) { border-top-color: var(--chart-2); }
+        .highlight-card:nth-child(2)::after { background: radial-gradient(ellipse at top, rgba(96,165,250,0.12), transparent 70%); }
+        .highlight-card:nth-child(3) { border-top-color: var(--crimson); }
+        .highlight-card:nth-child(3)::after { background: radial-gradient(ellipse at top, var(--crimson-glow), transparent 70%); }
+        .highlight-card:nth-child(4) { border-top-color: var(--lavender); }
+        .highlight-card:nth-child(4)::after { background: radial-gradient(ellipse at top, rgba(139,126,200,0.12), transparent 70%); }
+        .highlight-card:nth-child(5) { border-top-color: var(--chart-4); }
+        .highlight-card:nth-child(5)::after { background: radial-gradient(ellipse at top, rgba(251,191,36,0.12), transparent 70%); }
+        .highlight-card:nth-child(6) { border-top-color: var(--chart-6); }
+        .highlight-card:nth-child(6)::after { background: radial-gradient(ellipse at top, rgba(251,146,60,0.12), transparent 70%); }
+        .highlight-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 2px; letter-spacing: -0.02em; }
+        .highlight-card .label { color: var(--text-secondary); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+        .highlight-card .sublabel { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+        .report-section { padding: 56px 0 48px; position: relative; }
+        .report-section:nth-child(even) { background: var(--bg-alt); }
+        .report-section:nth-child(odd) { background: var(--bg); }
+        .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+        .section-num { font-family: var(--font-display); font-size: 3rem; font-weight: 300; color: var(--accent); opacity: 0.2; line-height: 1; letter-spacing: -0.04em; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .section-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: 0.95rem; max-width: 720px; line-height: 1.7; }
+        .section-divider { width: 48px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 12px 0 20px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 20px; }
+        .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; position: relative; }
+        .chart-card h3 { font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+        .chart-card canvas { max-height: 360px; }
+        .chart-card.full-width { grid-column: 1 / -1; }
+        .insight { background: rgba(59, 130, 246, 0.06); border-left: 3px solid var(--accent); padding: 14px 18px; margin-top: 20px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        .insight strong { color: var(--text); font-weight: 600; }
+        .social-section { padding: 56px 0; }
+        .social-section h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; margin-bottom: 28px; }
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+        .social-card { background: linear-gradient(145deg, rgba(20,30,48,0.9), rgba(8,13,24,0.95)); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden; backdrop-filter: blur(8px); transition: transform 0.25s cubic-bezier(.2,.8,.4,1), border-color 0.3s; }
+        .social-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+        .social-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; }
+        .social-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), transparent 80%); }
+        .social-card:nth-child(2)::before { background: linear-gradient(90deg, var(--chart-2), transparent 80%); }
+        .social-card:nth-child(3)::before { background: linear-gradient(90deg, var(--crimson), transparent 80%); }
+        .social-card:nth-child(4)::before { background: linear-gradient(90deg, var(--lavender), transparent 80%); }
+        .social-card:nth-child(5)::before { background: linear-gradient(90deg, var(--chart-4), transparent 80%); }
+        .social-card:nth-child(6)::before { background: linear-gradient(90deg, var(--chart-6), transparent 80%); }
+        .social-card .emoji { font-size: 1.8rem; margin-bottom: 10px; }
+        .social-card .stat { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+        .social-card .desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+        .social-card .hashtag { margin-top: 14px; color: var(--accent); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.01em; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+        thead { position: sticky; top: 0; z-index: 2; }
+        th { padding: 12px 16px; text-align: right; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border-light); }
+        td { padding: 10px 16px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+        th:first-child, td:first-child { text-align: left; }
+        td:last-child { color: var(--text); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+        tr:hover td { background: rgba(59, 130, 246, 0.04); }
+        tr:last-child td { border-bottom: none; }
+        footer { text-align: center; padding: 48px 24px; background: var(--bg-deep); border-top: 1px solid var(--border); color: var(--muted); font-size: 0.82rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        footer p + p { margin-top: 6px; }
+        .footer-dashboards { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .footer-dashboards a { margin: 0 8px; }
+        .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: var(--card); border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s, background 0.2s; z-index: 90; text-decoration: none; }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover { background: var(--card-hover); color: var(--text); }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(.2,.8,.4,1), transform 0.7s cubic-bezier(.2,.8,.4,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-stagger > .highlight-card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(.2,.8,.4,1), transform 0.5s cubic-bezier(.2,.8,.4,1); }
+        .reveal-stagger.visible > .highlight-card { opacity: 1; transform: translateY(0); }
+        .reveal-stagger.visible > .highlight-card:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(5) { transition-delay: 0.32s; }
+        .reveal-stagger.visible > .highlight-card:nth-child(6) { transition-delay: 0.4s; }
+        @media (max-width: 1024px) { .highlights { grid-template-columns: repeat(2, 1fr); } .chart-grid { grid-template-columns: 1fr; } .hero-stat { display: none; } .hero-text h1 { font-size: 2.4rem; } }
+        @media (max-width: 700px) { .hero { padding: 80px 20px 50px; } .hero-text h1 { font-size: 1.8rem; } .hero-text p { font-size: 0.95rem; } .highlights { grid-template-columns: 1fr 1fr; gap: 10px; } .highlight-card { padding: 16px 14px; } .highlight-card .number { font-size: 1.5rem; } .highlight-card .label { font-size: 0.75rem; } .section-header h2 { font-size: 1.3rem; } .section-num { font-size: 2rem; } .social-grid { grid-template-columns: 1fr; } .nav-brand { display: none; } .nav-links a { font-size: 0.65rem; padding: 4px 7px; } .chart-card { padding: 20px 16px; } }
+        @media (max-width: 480px) { .highlights { grid-template-columns: 1fr; } .nav-links { gap: 2px; } }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+    <div class="container nav-inner">
+        <div class="nav-brand">India PLFS</div>
+        <div class="nav-links" id="navLinks">
+            <a href="#social">Highlights</a>
+            <a href="#ur-trend">UR Trend</a>
+            <a href="#lfpr">LFPR</a>
+            <a href="#wpr">WPR</a>
+            <a href="#youth">Youth</a>
+            <a href="#rural-urban">Rural vs Urban</a>
+            <a href="#gender">Gender Gap</a>
+            <a href="#education">Education</a>
+            <a href="#worker-dist">Worker Dist</a>
+            <a href="#wages">Wages</a>
+        </div>
+    </div>
+    <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>India Employment &amp;<br>Labour Force <span>Seven years of transformation, 2017&ndash;18 to 2023&ndash;24</span></h1>
+            <p>From 6% unemployment in 2017&ndash;18 to 3.2% in 2023&ndash;24 &mdash; India&rsquo;s labour market has seen a remarkable turnaround with rising participation, falling joblessness, and a historic surge in female workforce engagement.</p>
+            <div class="source">Data: <a href="https://www.mospi.gov.in" target="_blank">Ministry of Statistics &amp; Programme Implementation</a> &middot; Periodic Labour Force Survey (PLFS) via eSankhyiki API</div>
+        </div>
+        <div class="hero-stat">
+            <div class="big-number">3.2%</div>
+            <div class="big-label">Unemployment Rate &middot; 2023&ndash;24</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<div class="container">
+    <div class="highlights reveal-stagger">
+        <div class="highlight-card">
+            <div class="number" style="color: var(--accent);">3.2%</div>
+            <div class="label">Unemployment Rate (PS+SS)</div>
+            <div class="sublabel">2023&ndash;24 &middot; All India</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-2);">60.1%</div>
+            <div class="label">Labour Force Participation Rate</div>
+            <div class="sublabel">Up from 49.8% in 2017&ndash;18</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--crimson);">58.2%</div>
+            <div class="label">Worker Population Ratio</div>
+            <div class="sublabel">2023&ndash;24 &middot; Combined</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--lavender);">10.2%</div>
+            <div class="label">Youth Unemployment (15&ndash;29)</div>
+            <div class="sublabel">Still 3&times; overall rate</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-4);">41.7%</div>
+            <div class="label">Female LFPR</div>
+            <div class="sublabel">Historic high in 2023&ndash;24</div>
+        </div>
+        <div class="highlight-card">
+            <div class="number" style="color: var(--chart-6);">&#8377;20,000+</div>
+            <div class="label">Average Regular Wage</div>
+            <div class="sublabel">Per month &middot; 2023&ndash;24</div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== SOCIAL CARDS ====== -->
+<section class="social-section container" id="social">
+    <h2 class="reveal">Share-worthy Facts</h2>
+    <div class="social-grid reveal">
+        <div class="social-card">
+            <div class="emoji">&#x1F4C9;</div>
+            <div class="stat">UR halved: 6% &rarr; 3.2%</div>
+            <div class="desc">India&rsquo;s overall unemployment rate (PS+SS) halved in 7 years, from 6% in 2017&ndash;18 to 3.2% in 2023&ndash;24 &mdash; the sharpest improvement in modern PLFS history.</div>
+            <div class="hashtag">#EmploymentGrowth</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F469;</div>
+            <div class="stat">Female LFPR surge: 23.3% &rarr; 41.7%</div>
+            <div class="desc">Women&rsquo;s labour force participation almost doubled in 7 years. From 23.3% to 41.7% &mdash; a structural shift in India&rsquo;s workforce composition.</div>
+            <div class="hashtag">#WomenInWorkforce</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F393;</div>
+            <div class="stat">Education paradox: Graduates 3&times; more jobless</div>
+            <div class="desc">Unemployment is highest among graduates (13.4%) and lowest among illiterates (0.5%). The more educated you are, the pickier the job market gets.</div>
+            <div class="hashtag">#SkillsGap</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F3D8;&#xFE0F;</div>
+            <div class="stat">Rural leads recovery</div>
+            <div class="desc">Rural unemployment fell to 2.4% vs urban 5.4% in 2023&ndash;24. Rural India&rsquo;s farm + informal sector absorbed workers faster post-pandemic.</div>
+            <div class="hashtag">#RuralIndia</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F468;&#x200D;&#x1F4BC;</div>
+            <div class="stat">Self-employment dominates at 57%</div>
+            <div class="desc">Over half of all Indian workers are self-employed. Regular salaried jobs account for just 21%, while casual labour makes up 22%.</div>
+            <div class="hashtag">#InformalEconomy</div>
+        </div>
+        <div class="social-card">
+            <div class="emoji">&#x1F9D1;&#x200D;&#x1F393;</div>
+            <div class="stat">Youth UR down 44%: 17.8% &rarr; 10.2%</div>
+            <div class="desc">Youth unemployment (15&ndash;29 age) fell from 17.8% to 10.2% in 7 years, but remains 3&times; the overall rate &mdash; a persistent challenge.</div>
+            <div class="hashtag">#YouthEmployment</div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 1: UNEMPLOYMENT RATE TREND ====== -->
+<section class="report-section" id="ur-trend">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <h2>Unemployment Rate Trend</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The Unemployment Rate (UR) under the usual status (PS+SS) approach measures the percentage of the labour force that is jobless. India&rsquo;s UR has declined steadily from 6% in 2017&ndash;18 to 3.2% in 2023&ndash;24, with male and female rates converging.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Unemployment Rate &mdash; Person, Male &amp; Female (PS+SS, Combined)</h3>
+                <canvas id="chartUrTrend"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Female unemployment has fallen faster than male &mdash; from 5.6% to 3.2% &mdash; and is now equal to the male rate. The gender gap in unemployment has effectively closed by 2023&ndash;24.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 2: LFPR TREND ====== -->
+<section class="report-section" id="lfpr">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <h2>Labour Force Participation Rate</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The LFPR measures the share of the working-age population (15+) that is either employed or actively seeking work. India&rsquo;s LFPR has risen sharply from 49.8% to 60.1%, driven almost entirely by a surge in female participation.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Labour Force Participation Rate &mdash; by Gender (PS+SS, Combined)</h3>
+                <canvas id="chartLfpr"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Female LFPR nearly doubled from 23.3% to 41.7% in 7 years, while male LFPR rose modestly from 75.8% to 78.8%. Women entering the workforce is the single biggest structural shift in India&rsquo;s labour market.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 3: WPR TREND ====== -->
+<section class="report-section" id="wpr">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <h2>Worker Population Ratio</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">WPR indicates the proportion of the population that is actually employed. Unlike LFPR, it excludes those seeking work. India&rsquo;s WPR has risen from 46.8% to 58.2%, indicating that more people are finding and holding jobs.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Worker Population Ratio &mdash; by Gender (PS+SS, Combined)</h3>
+                <canvas id="chartWpr"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Female WPR jumped from 22.0% to 40.3% &mdash; an 83% increase. Male WPR also improved from 71.2% to 76.3%, reflecting broad-based employment gains across genders.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 4: YOUTH VS OVERALL ====== -->
+<section class="report-section" id="youth">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <h2>Youth vs Overall Unemployment</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Youth (15&ndash;29 age group) unemployment is a critical indicator. While it has fallen significantly from 17.8% to 10.2%, it remains roughly 3 times the overall rate &mdash; a structural challenge that reflects skill mismatches and the &ldquo;educated unemployment&rdquo; paradox.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Youth (15&ndash;29) vs Overall Unemployment Rate (%)</h3>
+                <canvas id="chartYouth"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Youth UR dropped 43% from 17.8% to 10.2%, but the ratio to overall UR has stayed persistently at ~3x. Young Indians still face disproportionately high joblessness despite the overall improvement.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 5: RURAL VS URBAN ====== -->
+<section class="report-section" id="rural-urban">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <h2>Rural vs Urban Unemployment</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Rural and urban labour markets differ significantly. Rural India has consistently lower unemployment due to agriculture and informal work absorption. Urban unemployment remains more than double the rural rate, reflecting formal sector job scarcity.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Rural vs Urban Unemployment Rate (PS+SS)</h3>
+                <canvas id="chartRuralUrban"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Rural UR fell to 2.4% in 2023&ndash;24 while urban remained at 5.4%. The urban-rural gap has widened from 2.4pp to 3.0pp, suggesting urban job creation hasn&rsquo;t kept pace with rural labour absorption.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 6: GENDER GAP ====== -->
+<section class="report-section" id="gender">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">06</span>
+            <h2>Gender Gap in LFPR</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">The gender gap in labour force participation has been India&rsquo;s biggest structural weakness. While the gap has narrowed from 52.5pp to 37.1pp, men still participate at nearly double the rate of women. The trend, however, is decisively positive.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Male vs Female LFPR &mdash; Grouped Comparison</h3>
+                <canvas id="chartGender"></canvas>
+                <div class="insight"><strong>Key insight:</strong> The male-female LFPR gap shrank from 52.5 percentage points in 2017&ndash;18 to 37.1pp in 2023&ndash;24. At this rate of closure (~2.2pp/year), parity would still take 15+ years.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 7: EDUCATION & UNEMPLOYMENT ====== -->
+<section class="report-section" id="education">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">07</span>
+            <h2>Education &amp; Unemployment</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">India exhibits a striking paradox: higher education correlates with higher unemployment. Graduates face 13.4% unemployment while illiterates are at 0.5%. This reflects aspirational job-seeking among the educated and easier absorption of unskilled labour in the informal sector.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Unemployment Rate by Education Level &mdash; 2023&ndash;24 (%)</h3>
+                <canvas id="chartEducation" style="max-height:420px;"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Diploma holders (9.2%) and graduates (13.4%) have the highest unemployment. The &ldquo;educated unemployment&rdquo; problem persists because formal sector job creation lags behind the supply of degree holders.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 8: WORKER DISTRIBUTION ====== -->
+<section class="report-section" id="worker-dist">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">08</span>
+            <h2>Worker Distribution by Status</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">India&rsquo;s workforce is dominated by self-employment (57.3%), reflecting the large informal economy. Regular salaried employment &mdash; the most &ldquo;formal&rdquo; category &mdash; accounts for just 20.9%, while casual labour makes up 21.8%.</p>
+        <div class="chart-grid">
+            <div class="chart-card full-width">
+                <h3>Employment Status Distribution &mdash; 2023&ndash;24 (%)</h3>
+                <canvas id="chartWorkerDist" style="max-height:400px;"></canvas>
+                <div class="insight"><strong>Key insight:</strong> Over half of India&rsquo;s workers are self-employed, indicating the economy is still heavily informal. The share of regular/salaried jobs has remained stubbornly around 21&ndash;23%, underscoring the challenge of formal job creation.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====== SECTION 9: WAGES ====== -->
+<section class="report-section" id="wages">
+    <div class="container reveal">
+        <div class="section-header">
+            <span class="section-num">09</span>
+            <h2>Reference Data Table</h2>
+        </div>
+        <div class="section-divider"></div>
+        <p class="section-desc">Complete PLFS annual data for key labour market indicators (PS+SS approach, All India, persons aged 15 years and above).</p>
+        <div class="data-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>UR %</th>
+                        <th>LFPR %</th>
+                        <th>WPR %</th>
+                        <th>Youth UR %</th>
+                        <th>Female LFPR %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2017&ndash;18</td><td>6.0</td><td>49.8</td><td>46.8</td><td>17.8</td><td>23.3</td></tr>
+                    <tr><td>2018&ndash;19</td><td>5.8</td><td>50.2</td><td>47.3</td><td>17.3</td><td>24.5</td></tr>
+                    <tr><td>2019&ndash;20</td><td>4.8</td><td>53.5</td><td>50.9</td><td>15.0</td><td>32.5</td></tr>
+                    <tr><td>2020&ndash;21</td><td>4.2</td><td>54.9</td><td>52.6</td><td>12.9</td><td>35.4</td></tr>
+                    <tr><td>2021&ndash;22</td><td>4.1</td><td>55.2</td><td>52.9</td><td>12.4</td><td>36.4</td></tr>
+                    <tr><td>2022&ndash;23</td><td>3.2</td><td>57.9</td><td>56.0</td><td>10.0</td><td>40.0</td></tr>
+                    <tr><td>2023&ndash;24</td><td>3.2</td><td>60.1</td><td>58.2</td><td>10.2</td><td>41.7</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <p>Data sourced from <a href="https://www.mospi.gov.in" target="_blank">MoSPI</a> via eSankhyiki API &middot; Periodic Labour Force Survey (PLFS)</p>
+    <p>Annual estimates, All India, usual status (PS+SS), persons aged 15 years and above.</p>
+    <div class="footer-dashboards">
+        <a href="../india-gdp-report/">GDP</a> &middot;
+        <a href="../india-inflation-report/">CPI Inflation</a> &middot;
+        <strong>Employment</strong> &middot;
+        <a href="../india-industrial-report/">IIP</a> &middot;
+        <a href="../india-factory-report/">Factory Survey</a> &middot;
+        <a href="../india-wholesale-prices-report/">WPI</a> &middot;
+        <a href="../india-energy-report/">Energy</a>
+    </div>
+</footer>
+
+<a href="#top" class="back-to-top" id="backToTop">&uarr;</a>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#a0aec0';
+Chart.defaults.plugins.datalabels.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(8,13,24,0.95)';
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 13 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+
+const tooltipStyle = {
+    backgroundColor: 'rgba(8,13,24,0.95)',
+    titleFont: { weight: '600', size: 13 },
+    bodyFont: { size: 12 },
+    padding: 12, cornerRadius: 8,
+    borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1
+};
+const gridStyle = { color: 'rgba(255,255,255,0.04)', drawBorder: false };
+const scaleX = { grid: { display: false }, ticks: { font: { size: 11 } } };
+const scaleY = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: false };
+const scaleYZero = { grid: gridStyle, ticks: { font: { size: 11 } }, beginAtZero: true };
+
+const doughnutLabelOpts = {
+    display: true,
+    color: '#e8edf5',
+    font: { size: 11, weight: '600' },
+    formatter: (v) => v > 5 ? v.toFixed(1) + '%' : ''
+};
+
+// ========== DATA ==========
+const years = ['2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24'];
+
+// Unemployment Rate (PS+SS, Combined)
+const urPerson = [6.0, 5.8, 4.8, 4.2, 4.1, 3.2, 3.2];
+const urMale   = [6.1, 6.0, 5.1, 4.5, 4.4, 3.3, 3.2];
+const urFemale = [5.6, 5.2, 4.2, 3.4, 3.3, 2.9, 3.2];
+
+// LFPR (PS+SS, Combined)
+const lfprPerson = [49.8, 50.2, 53.5, 54.9, 55.2, 57.9, 60.1];
+const lfprMale   = [75.8, 75.5, 74.6, 75.1, 74.5, 76.3, 78.8];
+const lfprFemale = [23.3, 24.5, 32.5, 35.4, 36.4, 40.0, 41.7];
+
+// WPR (PS+SS, Combined)
+const wprPerson = [46.8, 47.3, 50.9, 52.6, 52.9, 56.0, 58.2];
+const wprMale   = [71.2, 71.0, 70.9, 71.9, 71.3, 74.0, 76.3];
+const wprFemale = [22.0, 23.3, 30.7, 33.9, 35.0, 38.5, 40.3];
+
+// Youth UR (15-29)
+const youthUr  = [17.8, 17.3, 15.0, 12.9, 12.4, 10.0, 10.2];
+
+// Rural vs Urban UR
+const ruralUr = [5.3, 5.0, 3.9, 3.3, 3.2, 2.4, 2.4];
+const urbanUr = [7.7, 7.7, 6.4, 6.3, 5.8, 5.0, 5.4];
+
+// Education UR (2023-24)
+const eduLabels = ['Not Literate','Upto Primary','Middle','Secondary','Higher Secondary','Diploma','Graduate','Post Graduate','Sec & Above'];
+const eduValues = [0.5, 1.5, 2.8, 3.8, 6.8, 9.2, 13.4, 12.1, 6.5];
+
+// Worker distribution (2023-24)
+const workerLabels = ['Self-employed','Casual Labour','Regular/Salaried'];
+const workerValues = [57.3, 21.8, 20.9];
+
+// ========== CHART 1: UR Trend (Line) ==========
+new Chart(document.getElementById('chartUrTrend'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Person', data: urPerson, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Male', data: urMale, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Female', data: urFemale, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleYZero, title: { display: true, text: 'Unemployment Rate (%)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 2: LFPR Trend (Line) ==========
+new Chart(document.getElementById('chartLfpr'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Male', data: lfprMale, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Person', data: lfprPerson, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Female', data: lfprFemale, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'LFPR (%)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 3: WPR Trend (Line) ==========
+new Chart(document.getElementById('chartWpr'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Male', data: wprMale, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Person', data: wprPerson, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Female', data: wprFemale, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleY, title: { display: true, text: 'WPR (%)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 4: Youth vs Overall UR (Bar) ==========
+new Chart(document.getElementById('chartYouth'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Youth UR (15-29)', data: youthUr, backgroundColor: 'rgba(59,130,246,0.6)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 4 },
+            { label: 'Overall UR', data: urPerson, backgroundColor: 'rgba(52,211,153,0.6)', borderColor: '#34d399', borderWidth: 1, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleYZero, title: { display: true, text: 'Unemployment Rate (%)', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' }
+        }
+    }
+});
+
+// ========== CHART 5: Rural vs Urban UR (Line) ==========
+new Chart(document.getElementById('chartRuralUrban'), {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Urban UR', data: urbanUr, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Rural UR', data: ruralUr, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', fill: true, tension: 0.35, pointRadius: 4, pointHoverRadius: 7, borderWidth: 2.5 },
+            { label: 'Overall UR', data: urPerson, borderColor: '#a78bfa', tension: 0.35, pointRadius: 3, borderWidth: 2, borderDash: [5,3] }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: { x: scaleX, y: { ...scaleYZero, title: { display: true, text: 'Unemployment Rate (%)', color: '#6b7a90', font: { size: 11 } } } },
+        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } }, tooltip: tooltipStyle }
+    }
+});
+
+// ========== CHART 6: Gender Gap (Grouped Bar) ==========
+new Chart(document.getElementById('chartGender'), {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [
+            { label: 'Male LFPR', data: lfprMale, backgroundColor: 'rgba(59,130,246,0.6)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 4 },
+            { label: 'Female LFPR', data: lfprFemale, backgroundColor: 'rgba(251,146,60,0.6)', borderColor: '#fb923c', borderWidth: 1, borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+        scales: {
+            x: scaleX,
+            y: { ...scaleYZero, title: { display: true, text: 'LFPR (%)', color: '#6b7a90', font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12 } } },
+            tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' }
+        }
+    }
+});
+
+// ========== CHART 7: Education & Unemployment (Horizontal Bar) ==========
+new Chart(document.getElementById('chartEducation'), {
+    type: 'bar',
+    data: {
+        labels: eduLabels,
+        datasets: [{
+            data: eduValues,
+            backgroundColor: eduValues.map(v => v >= 10 ? 'rgba(224,82,82,0.6)' : v >= 5 ? 'rgba(251,191,36,0.5)' : 'rgba(52,211,153,0.5)'),
+            borderRadius: 4, borderSkipped: false
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.6,
+        scales: {
+            x: { ...scaleYZero, title: { display: true, text: 'Unemployment Rate (%)', color: '#6b7a90', font: { size: 11 } } },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        },
+        plugins: {
+            legend: { display: false }, tooltip: tooltipStyle,
+            datalabels: { display: true, anchor: 'end', align: 'end', color: '#e8edf5', font: { size: 10, weight: '600' }, formatter: v => v.toFixed(1) + '%' }
+        }
+    }
+});
+
+// ========== CHART 8: Worker Distribution (Doughnut) ==========
+new Chart(document.getElementById('chartWorkerDist'), {
+    type: 'doughnut',
+    data: {
+        labels: workerLabels,
+        datasets: [{
+            data: workerValues,
+            backgroundColor: ['rgba(59,130,246,0.7)', 'rgba(251,146,60,0.7)', 'rgba(52,211,153,0.7)'],
+            borderColor: ['#3b82f6', '#fb923c', '#34d399'],
+            borderWidth: 2,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: true, aspectRatio: 1.6,
+        cutout: '55%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20, font: { size: 12 } } },
+            tooltip: tooltipStyle,
+            datalabels: doughnutLabelOpts
+        }
+    }
+});
+
+// ========== SCROLL ANIMATIONS & NAV ==========
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+const nav = document.getElementById('siteNav');
+const navProgress = document.getElementById('navProgress');
+const backBtn = document.getElementById('backToTop');
+const sections = document.querySelectorAll('.report-section, .social-section');
+const navLinksEl = document.getElementById('navLinks');
+const navLinks = navLinksEl ? navLinksEl.querySelectorAll('a') : [];
+
+window.addEventListener('scroll', () => {
+    const st = window.scrollY;
+    nav.classList.toggle('scrolled', st > 40);
+    backBtn.classList.toggle('visible', st > 600);
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    navProgress.style.width = h > 0 ? (st / h * 100) + '%' : '0%';
+
+    let current = '';
+    sections.forEach(s => {
+        if (s.offsetTop - 120 <= st) current = s.id;
+    });
+    navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+}, { passive: true });
+</script>
+</body>
+</html>
